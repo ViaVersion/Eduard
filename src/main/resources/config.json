@@ -1,0 +1,6 @@
+{
+  "token": "",
+  "latest-release": "3.0.0",
+  "latest-viabackwards-release": "3.0.0",
+  "tracked-branches": ["master", "dev"]
+}

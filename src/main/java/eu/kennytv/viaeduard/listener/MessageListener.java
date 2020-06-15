@@ -1,5 +1,7 @@
 package eu.kennytv.viaeduard.listener;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,11 +22,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 public final class MessageListener extends ListenerAdapter {
 
+    private static final Object O = new Object();
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
     private static final String PLATFORM_FORMAT = "\nPlatform: `%s`\nPlatform version: `%s`";
+    private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
     private final ViaEduardBot bot;
 
     public MessageListener(final ViaEduardBot bot) {
@@ -36,6 +41,12 @@ public final class MessageListener extends ListenerAdapter {
         String line = event.getMessage().getContentRaw();
         final int index = line.indexOf("https://dump.viaversion.com/");
         if (index == -1) return;
+
+        // Rate limit
+        final long authorId = event.getAuthor().getIdLong();
+        if (recentlySent.getIfPresent(authorId) != null) return;
+
+        recentlySent.put(authorId, O);
 
         line = line.substring(index);
         final int end = line.indexOf(' ');

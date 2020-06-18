@@ -49,7 +49,11 @@ public final class MessageListener extends ListenerAdapter {
         recentlySent.put(authorId, O);
 
         line = line.substring(index);
-        final int end = line.indexOf(' ');
+        int end = line.indexOf('\n');
+        if (end == -1) {
+            end = line.indexOf(' ');
+        }
+
         line = line.substring(0, end == -1 ? line.length() : end);
         if (line.length() == 28) return;
 
@@ -57,6 +61,7 @@ public final class MessageListener extends ListenerAdapter {
         try {
             sendRequest(event.getMessage(), line);
         } catch (final IOException e) {
+            System.err.println("Error requesting " + line);
             e.printStackTrace();
         }
     }
@@ -69,7 +74,7 @@ public final class MessageListener extends ListenerAdapter {
 
         final int responseCode = connection.getResponseCode();
         if (responseCode != 200) {
-            System.out.println("Could not paste dump: " + responseCode);
+            System.out.println("Could not paste '" + url + "': " + responseCode);
             return;
         }
 

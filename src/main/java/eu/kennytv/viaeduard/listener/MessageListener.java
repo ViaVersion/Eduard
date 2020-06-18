@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 public final class MessageListener extends ListenerAdapter {
 
     private static final Object O = new Object();
+    private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind"};
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
     private static final String PLATFORM_FORMAT = "\nPlatform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
@@ -98,44 +99,55 @@ public final class MessageListener extends ListenerAdapter {
             return;
         }
 
+        boolean radioactive = false;
+
         // Send data for ViaVersion
         final String pluginVersion = versionInfo.getAsJsonPrimitive("pluginVersion").getAsString();
         final Version version = new Version(pluginVersion);
-        final ImmutablePair<String, Color> pair = compareToRemote("ViaVersion", version, bot.getLatestRelease(), implementationVersion.getAsString());
+        final ImmutablePair<String, Color> pair = compareToRemote("ViaVersion", version, implementationVersion.getAsString());
         // Append platform data
         final String s = pair.left + String.format(PLATFORM_FORMAT, versionInfo.getAsJsonPrimitive("platformName").getAsString(),
                 versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
         EmbedMessageUtil.sendMessage(message.getTextChannel(), s, pair.right);
         if (pair.right == Color.RED) {
             message.addReaction("U+2623").queue(); // Radioactive
+            radioactive = true;
         }
 
-        // Check for ViaBackwards
+        // Check for ViaBackwards/ViaRewind
         final JsonArray subplatformArray = versionInfo.getAsJsonArray("subPlatforms");
         if (subplatformArray.size() == 0) return;
 
-        String vbInfo = null;
         for (final JsonElement element : subplatformArray) {
             final String stringElement = element.getAsString();
-            if (stringElement.contains("ViaBackwards")) {
-                vbInfo = stringElement;
-                break;
+            for (final String subplatform : SUBPLATFORMS) {
+                if (stringElement.contains(subplatform)) {
+                    // Found subplatform, check data
+                    radioactive |= sendSubplatformInfo(subplatform, stringElement, message, radioactive);
+                }
             }
-        }
-        if (vbInfo == null) return;
-
-        // Found VB, check data
-        final Version vbVersion = new Version(vbInfo.split("git-ViaBackwards-")[1].split(":")[0]);
-        final ImmutablePair<String, Color> vbPair = compareToRemote("ViaBackwards", vbVersion, bot.getLatestVBRelease(), vbInfo);
-        EmbedMessageUtil.sendMessage(message.getTextChannel(), vbPair.left, vbPair.right);
-        if (pair.right != Color.RED && vbPair.right == Color.RED) {
-            message.addReaction("U+2623").queue(); // Radioactive
         }
     }
 
-    private ImmutablePair<String, Color> compareToRemote(final String pluginName, final Version version, final Version latestRelease, final String commitData) {
+    /**
+     * @return true if the subplatform is heavily outdated
+     */
+    private boolean sendSubplatformInfo(final String platform, final String data, final Message message, final boolean isRadioactive) {
+        final Version version = new Version(data.split("git-" + platform + "-")[1].split(":")[0]);
+        final ImmutablePair<String, Color> pair = compareToRemote(platform, version, data);
+        EmbedMessageUtil.sendMessage(message.getTextChannel(), pair.left, pair.right);
+        if (!isRadioactive && pair.right == Color.RED) {
+            // Add Radioactive if not already done
+            message.addReaction("U+2623").queue();
+            return true;
+        }
+        return false;
+    }
+
+    private ImmutablePair<String, Color> compareToRemote(final String pluginName, final Version version, final String commitData) {
         final String versionInfo = String.format(FORMAT, pluginName, version);
-        if (version.equals(bot.getLatestRelease())) {
+        final Version latestRelease = bot.getLatestRelease(pluginName);
+        if (version.equals(latestRelease)) {
             return new ImmutablePair<>(versionInfo, Color.GREEN);
         } else if (version.compareTo(latestRelease) == -1) {
             return new ImmutablePair<>("**Your " + pluginName + " is outdated!**\n" + versionInfo, Color.RED);

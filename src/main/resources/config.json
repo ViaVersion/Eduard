@@ -1,6 +1,9 @@
 {
   "token": "",
-  "latest-release": "3.0.0",
-  "latest-viabackwards-release": "3.0.0",
+  "latest-releases": {
+    "ViaVersion": "3.0.0",
+    "ViaBackwards": "3.0.0",
+    "ViaRewind": "1.5.0"
+  },
   "tracked-branches": ["master", "dev"]
 }

@@ -5,7 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import eu.kennytv.viaeduard.listener.MessageListener;
+import eu.kennytv.viaeduard.listener.DumpMessageListener;
+import eu.kennytv.viaeduard.listener.HelpMessageListener;
 import eu.kennytv.viaeduard.util.Version;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,6 +25,7 @@ public final class ViaEduardBot {
     private final Map<String, Version> latestReleases = new HashMap<>();
     private JDA jda;
     private String[] trackedBranches;
+    private String helpMessage;
 
     public static void main(final String[] args) {
         new ViaEduardBot();
@@ -42,7 +44,8 @@ public final class ViaEduardBot {
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
 
-        builder.addEventListeners(new MessageListener(this));
+        builder.addEventListeners(new DumpMessageListener(this));
+        builder.addEventListeners(new HelpMessageListener(this));
 
         try {
             jda = builder.build().awaitReady();
@@ -57,6 +60,8 @@ public final class ViaEduardBot {
         for (final Map.Entry<String, JsonElement> entry : object.getAsJsonObject("latest-releases").entrySet()) {
             latestReleases.put(entry.getKey(), new Version(entry.getValue().getAsString()));
         }
+
+        helpMessage = object.getAsJsonPrimitive("help-message").getAsString();
 
         final JsonArray trackedBranchesArray = object.getAsJsonArray("tracked-branches");
         trackedBranches = new String[trackedBranchesArray.size()];
@@ -76,5 +81,9 @@ public final class ViaEduardBot {
 
     public String[] getTrackedBranches() {
         return trackedBranches;
+    }
+
+    public String getHelpMessage() {
+        return helpMessage;
     }
 }

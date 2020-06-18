@@ -24,7 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
-public final class MessageListener extends ListenerAdapter {
+public final class DumpMessageListener extends ListenerAdapter {
 
     private static final Object O = new Object();
     private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind"};
@@ -33,7 +33,7 @@ public final class MessageListener extends ListenerAdapter {
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
     private final ViaEduardBot bot;
 
-    public MessageListener(final ViaEduardBot bot) {
+    public DumpMessageListener(final ViaEduardBot bot) {
         this.bot = bot;
     }
 

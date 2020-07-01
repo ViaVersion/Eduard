@@ -25,6 +25,7 @@ public final class ViaEduardBot {
     private final Map<String, Version> latestReleases = new HashMap<>();
     private JDA jda;
     private String[] trackedBranches;
+    private String privateHelpMessage;
     private String helpMessage;
 
     public static void main(final String[] args) {
@@ -62,6 +63,7 @@ public final class ViaEduardBot {
         }
 
         helpMessage = object.getAsJsonPrimitive("help-message").getAsString();
+        privateHelpMessage = object.getAsJsonPrimitive("private-help-message").getAsString();
 
         final JsonArray trackedBranchesArray = object.getAsJsonArray("tracked-branches");
         trackedBranches = new String[trackedBranchesArray.size()];
@@ -85,5 +87,9 @@ public final class ViaEduardBot {
 
     public String getHelpMessage() {
         return helpMessage;
+    }
+
+    public String getPrivateHelpMessage() {
+        return privateHelpMessage;
     }
 }

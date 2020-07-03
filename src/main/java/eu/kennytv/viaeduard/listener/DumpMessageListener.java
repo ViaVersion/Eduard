@@ -101,6 +101,19 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         boolean radioactive = false;
 
+        // Check for the evil
+        final JsonObject platformDump = object.getAsJsonObject("platformDump");
+        final JsonArray plugins = platformDump.getAsJsonArray("plugins");
+        for (final JsonElement pluginElement : plugins) {
+            if (!pluginElement.isJsonObject()) continue;
+
+            final JsonPrimitive name = pluginElement.getAsJsonObject().getAsJsonPrimitive("name");
+            if (name != null && name.getAsString().equals("SkinsRestorer")) {
+                message.addReaction("U+2620").queue();
+                EmbedMessageUtil.sendMessage(message.getTextChannel(), "SkinsRestorer is known to cause issues with Via, which is something we cannot fix on our side.", Color.RED);
+            }
+        }
+
         // Send data for ViaVersion
         final String pluginVersion = versionInfo.getAsJsonPrimitive("pluginVersion").getAsString();
         final Version version = new Version(pluginVersion);

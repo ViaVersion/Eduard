@@ -184,7 +184,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         if (distance == -1) {
             return new ImmutablePair<>("**Error fetching commit data**\n" + versionInfo, Color.GRAY);
         } else if (distance == 0) {
-            return new ImmutablePair<>("You are even with " + trackedBranch + "\n" + versionInfo, Color.CYAN);
+            return new ImmutablePair<>("You are even with **" + trackedBranch + "**\n" + versionInfo, Color.CYAN);
         } else {
             return new ImmutablePair<>("**You are " + distance + " commit(s) behind " + trackedBranch + "**\n" + versionInfo, Color.ORANGE);
         }

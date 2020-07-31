@@ -4,13 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.kennytv</groupId>
+    <groupId>eu.kennytv.eduard</groupId>
     <artifactId>via-eduard</artifactId>
+    <packaging>pom</packaging>
     <name>ViaEduard</name>
     <version>1.0</version>
 
+    <modules>
+        <module>discord-bot</module>
+        <module>common</module>
+        <module>github-bot</module>
+    </modules>
+
     <properties>
-        <plugin.java>11</plugin.java>
+        <plugin.java>14</plugin.java>
         <maven.compiler.target>${plugin.java}</maven.compiler.target>
         <maven.compiler.source>${plugin.java}</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,26 +29,18 @@
             <name>jcenter-bintray</name>
             <url>https://jcenter.bintray.com</url>
         </repository>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>net.dv8tion</groupId>
-            <artifactId>JDA</artifactId>
-            <version>4.2.0_182</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.8.6</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
-            <scope>compile</scope>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>19.0.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

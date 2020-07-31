@@ -1,8 +1,8 @@
-package eu.kennytv.viaeduard.listener;
+package eu.kennytv.viaeduard.discord.listener;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import eu.kennytv.viaeduard.ViaEduardBot;
+import eu.kennytv.viaeduard.discord.ViaEduardBot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

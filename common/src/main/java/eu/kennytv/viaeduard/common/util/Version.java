@@ -1,4 +1,4 @@
-package eu.kennytv.viaeduard.util;
+package eu.kennytv.viaeduard.common.util;
 
 import org.jetbrains.annotations.NotNull;
 

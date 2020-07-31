@@ -1,4 +1,4 @@
-package eu.kennytv.viaeduard.listener;
+package eu.kennytv.viaeduard.discord.listener;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -6,10 +6,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import eu.kennytv.viaeduard.ViaEduardBot;
-import eu.kennytv.viaeduard.util.EmbedMessageUtil;
-import eu.kennytv.viaeduard.util.GitVersionUtil;
-import eu.kennytv.viaeduard.util.Version;
+import eu.kennytv.viaeduard.common.util.GitVersionUtil;
+import eu.kennytv.viaeduard.common.util.Version;
+import eu.kennytv.viaeduard.discord.ViaEduardBot;
+import eu.kennytv.viaeduard.discord.util.EmbedMessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -159,7 +159,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
     private ImmutablePair<String, Color> compareToRemote(final String pluginName, final Version version, final String commitData) {
         final String versionInfo = String.format(FORMAT, pluginName, version);
-        final Version latestRelease = bot.getLatestRelease(pluginName);
+        final Version latestRelease = bot.getLatestReleaseOf(pluginName);
         if (version.equals(latestRelease)) {
             return new ImmutablePair<>(versionInfo, Color.GREEN);
         } else if (version.compareTo(latestRelease) == -1) {

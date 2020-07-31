@@ -2,7 +2,7 @@ package eu.kennytv.viaeduard.discord.listener;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import eu.kennytv.viaeduard.discord.ViaEduardBot;
+import eu.kennytv.viaeduard.discord.EduardDiscordBot;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -21,9 +21,9 @@ public final class HelpMessageListener extends ListenerAdapter {
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(3, TimeUnit.HOURS).build();
     private final Cache<Long, Object> recentlySentPrivate = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build();
     private final Cache<Long, Object> hellos = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES).build();
-    private final ViaEduardBot bot;
+    private final EduardDiscordBot bot;
 
-    public HelpMessageListener(final ViaEduardBot bot) {
+    public HelpMessageListener(final EduardDiscordBot bot) {
         this.bot = bot;
     }
 

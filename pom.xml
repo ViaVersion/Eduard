@@ -8,7 +8,7 @@
     <artifactId>via-eduard</artifactId>
     <packaging>pom</packaging>
     <name>ViaEduard</name>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
 
     <modules>
         <module>discord-bot</module>
@@ -60,6 +60,7 @@
                 <configuration>
                     <archive>
                         <manifest>
+                            <!-- TODO currently this class is just thrown into every module, which is ehhh -->
                             <mainClass>eu.kennytv.viaeduard.ViaEduardBot</mainClass>
                         </manifest>
                     </archive>

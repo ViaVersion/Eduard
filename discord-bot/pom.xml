@@ -6,17 +6,21 @@
     <parent>
         <groupId>eu.kennytv.eduard</groupId>
         <artifactId>via-eduard</artifactId>
-        <version>1.0</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>discord-bot</artifactId>
     <name>Eduard-Discord</name>
 
+    <properties>
+        <main>eu.kennytv.viaeduard.ViaEduardBot</main>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>eu.kennytv.eduard</groupId>
             <artifactId>common</artifactId>
-            <version>1.0</version>
+            <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

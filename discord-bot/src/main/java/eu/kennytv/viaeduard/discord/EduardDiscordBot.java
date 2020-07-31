@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 
-public final class ViaEduardBot extends EduardPlatform {
+public final class EduardDiscordBot extends EduardPlatform {
 
     public static final Gson GSON = new GsonBuilder().create();
     private JDA jda;
@@ -22,11 +22,7 @@ public final class ViaEduardBot extends EduardPlatform {
     private String privateHelpMessage;
     private String helpMessage;
 
-    public static void main(final String[] args) {
-        new ViaEduardBot();
-    }
-
-    private ViaEduardBot() {
+    public EduardDiscordBot() {
         final JsonObject object;
         try {
             object = loadConfig();

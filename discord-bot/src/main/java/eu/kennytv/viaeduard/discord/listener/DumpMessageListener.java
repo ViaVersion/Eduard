@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import eu.kennytv.viaeduard.common.util.GitVersionUtil;
 import eu.kennytv.viaeduard.common.util.Version;
-import eu.kennytv.viaeduard.discord.ViaEduardBot;
+import eu.kennytv.viaeduard.discord.EduardDiscordBot;
 import eu.kennytv.viaeduard.discord.util.EmbedMessageUtil;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -31,9 +31,9 @@ public final class DumpMessageListener extends ListenerAdapter {
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
     private static final String PLATFORM_FORMAT = "\nPlatform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
-    private final ViaEduardBot bot;
+    private final EduardDiscordBot bot;
 
-    public DumpMessageListener(final ViaEduardBot bot) {
+    public DumpMessageListener(final EduardDiscordBot bot) {
         this.bot = bot;
     }
 
@@ -88,8 +88,8 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
 
         final String content = contentBuilder.toString();
-        final JsonPrimitive data = ViaEduardBot.GSON.fromJson(content, JsonObject.class).getAsJsonPrimitive("data");
-        final JsonObject object = ViaEduardBot.GSON.fromJson(data.getAsString(), JsonObject.class);
+        final JsonPrimitive data = EduardDiscordBot.GSON.fromJson(content, JsonObject.class).getAsJsonPrimitive("data");
+        final JsonObject object = EduardDiscordBot.GSON.fromJson(data.getAsString(), JsonObject.class);
         final JsonObject versionInfo = object.getAsJsonObject("versionInfo");
         final JsonPrimitive implementationVersion = versionInfo.getAsJsonPrimitive("implementationVersion");
         if (implementationVersion == null) {

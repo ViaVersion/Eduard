@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 public final class HelpMessageListener extends ListenerAdapter {
 
     private static final String[] HELLOS = {"hi", "hello", "hey"};
+    private static final String[] THANKSES = {"thx for", "thanks for", "thank you for"};
     private static final Object O = new Object();
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(3, TimeUnit.HOURS).build();
     private final Cache<Long, Object> recentlySentPrivate = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build();
@@ -47,7 +48,7 @@ public final class HelpMessageListener extends ListenerAdapter {
         }
 
         // Help check
-        if (!lowerCaseMessage.contains("help")) return;
+        if (!lowerCaseMessage.contains("help") || Arrays.stream(THANKSES).anyMatch(lowerCaseMessage::contains)) return;
         if (recentlySent.getIfPresent(id) != null) return;
         if (member.hasPermission(Permission.VOICE_MOVE_OTHERS)) return;
 

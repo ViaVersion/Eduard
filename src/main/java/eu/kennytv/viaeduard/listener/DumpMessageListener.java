@@ -104,13 +104,21 @@ public final class DumpMessageListener extends ListenerAdapter {
         // Check for the evil
         final JsonObject platformDump = object.getAsJsonObject("platformDump");
         final JsonArray plugins = platformDump.getAsJsonArray("plugins");
+        final String platformName = versionInfo.getAsJsonPrimitive("platformName").getAsString();
+        final boolean isSpigot = platformName.equals("CraftBukkit");
         for (final JsonElement pluginElement : plugins) {
             if (!pluginElement.isJsonObject()) continue;
 
             final JsonPrimitive name = pluginElement.getAsJsonObject().getAsJsonPrimitive("name");
-            if (name != null && name.getAsString().equals("SkinsRestorer")) {
+            if (name == null) continue;
+
+            final String pluginName = name.getAsString();
+            if (pluginName.equals("SkinsRestorer")) {
                 message.addReaction("U+2620").queue();
                 EmbedMessageUtil.sendMessage(message.getTextChannel(), "SkinsRestorer is known to cause issues with Via, which is something we cannot fix on our side.", Color.RED);
+            } else if (isSpigot && pluginName.equals("ProtocolSupport")) {
+                message.addReaction("U+2757").queue();
+                EmbedMessageUtil.sendMessage(message.getTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
             }
         }
 
@@ -119,7 +127,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         final Version version = new Version(pluginVersion);
         final ImmutablePair<String, Color> pair = compareToRemote("ViaVersion", version, implementationVersion.getAsString());
         // Append platform data
-        final String s = pair.left + String.format(PLATFORM_FORMAT, versionInfo.getAsJsonPrimitive("platformName").getAsString(),
+        final String s = pair.left + String.format(PLATFORM_FORMAT, platformName,
                 versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
         EmbedMessageUtil.sendMessage(message.getTextChannel(), s, pair.right);
         if (pair.right == Color.RED) {

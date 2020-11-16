@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import eu.kennytv.viaeduard.listener.DumpMessageListener;
+import eu.kennytv.viaeduard.listener.FileMessageListener;
 import eu.kennytv.viaeduard.listener.HelpMessageListener;
 import eu.kennytv.viaeduard.util.Version;
 import net.dv8tion.jda.api.JDA;
@@ -47,6 +48,7 @@ public final class ViaEduardBot {
 
         builder.addEventListeners(new DumpMessageListener(this));
         builder.addEventListeners(new HelpMessageListener(this));
+        builder.addEventListeners(new FileMessageListener(this));
 
         try {
             jda = builder.build().awaitReady();

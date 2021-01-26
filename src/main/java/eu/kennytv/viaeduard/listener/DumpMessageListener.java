@@ -106,6 +106,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         final JsonArray plugins = platformDump.getAsJsonArray("plugins");
         final String platformName = versionInfo.getAsJsonPrimitive("platformName").getAsString();
         final boolean isSpigot = platformName.equals("CraftBukkit");
+        boolean hasProtocolSupport = false;
         for (final JsonElement pluginElement : plugins) {
             if (!pluginElement.isJsonObject()) continue;
 
@@ -113,12 +114,12 @@ public final class DumpMessageListener extends ListenerAdapter {
             if (name == null) continue;
 
             final String pluginName = name.getAsString();
-            if (pluginName.equals("SkinsRestorer")) {
-                message.addReaction("U+2620").queue();
-                EmbedMessageUtil.sendMessage(message.getTextChannel(), "SkinsRestorer is known to cause issues with Via, which is something we cannot fix on our side.", Color.RED);
-            } else if (isSpigot && pluginName.equals("ProtocolSupport")) {
-                message.addReaction("U+2757").queue();
-                EmbedMessageUtil.sendMessage(message.getTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
+            if (pluginName.equals("ProtocolSupport")) {
+                hasProtocolSupport = true;
+                if (isSpigot) {
+                    message.addReaction("U+2757").queue(); // Exclamation mark
+                    EmbedMessageUtil.sendMessage(message.getTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
+                }
             }
         }
 
@@ -143,6 +144,11 @@ public final class DumpMessageListener extends ListenerAdapter {
             final String stringElement = element.getAsString();
             for (final String subplatform : SUBPLATFORMS) {
                 if (stringElement.contains(subplatform)) {
+                    if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
+                        message.addReaction("U+26A1").queue(); // Lightning
+                        EmbedMessageUtil.sendMessage(message.getTextChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
+                    }
+
                     // Found subplatform, check data
                     radioactive |= sendSubplatformInfo(subplatform, stringElement, message, radioactive);
                 }

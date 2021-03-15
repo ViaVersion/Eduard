@@ -27,4 +27,18 @@ public final class EmbedMessageUtil {
     public static void sendMessage(final TextChannel channel, final String message) {
         sendMessage(channel, message, Color.GRAY);
     }
+
+    public static void sendHelpMessage(final TextChannel channel, final Message message, final String help) {
+        sendTempMessage(channel, message, help, Color.YELLOW);
+    }
+
+    public static void sendErrorMessage(final TextChannel channel, final Message message, final String error) {
+        sendTempMessage(channel, message, error, Color.RED);
+    }
+
+    private static void sendTempMessage(final TextChannel channel, final Message message, final String error, final Color color) {
+        final Message msg = channel.sendMessage(EmbedMessageUtil.getMessage(error, color)).complete();
+        message.delete().queueAfter(5, TimeUnit.SECONDS);
+        msg.delete().queueAfter(5, TimeUnit.SECONDS);
+    }
 }

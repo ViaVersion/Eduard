@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import eu.kennytv.viaeduard.command.MessageCommand;
+import eu.kennytv.viaeduard.command.base.CommandHandler;
 import eu.kennytv.viaeduard.listener.DumpMessageListener;
 import eu.kennytv.viaeduard.listener.FileMessageListener;
 import eu.kennytv.viaeduard.listener.HelpMessageListener;
@@ -12,6 +14,7 @@ import eu.kennytv.viaeduard.util.Version;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Guild;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -24,7 +27,9 @@ public final class ViaEduardBot {
 
     public static final Gson GSON = new GsonBuilder().create();
     private final Map<String, Version> latestReleases = new HashMap<>();
-    private JDA jda;
+    private final CommandHandler commandHandler;
+    private final JDA jda;
+    private final Guild guild;
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
@@ -38,14 +43,15 @@ public final class ViaEduardBot {
         try {
             object = loadConfig();
         } catch (final IOException e) {
-            e.printStackTrace();
-            return;
+            throw new RuntimeException(e);
         }
 
         final JDABuilder builder = JDABuilder.createDefault(object.getAsJsonPrimitive("token").getAsString());
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
+        commandHandler = new CommandHandler();
 
+        builder.addEventListeners(commandHandler);
         builder.addEventListeners(new DumpMessageListener(this));
         builder.addEventListeners(new HelpMessageListener(this));
         builder.addEventListeners(new FileMessageListener(this));
@@ -53,8 +59,12 @@ public final class ViaEduardBot {
         try {
             jda = builder.build().awaitReady();
         } catch (final LoginException | InterruptedException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
+
+        guild = jda.getGuildById(316206679014244363L);
+
+        new MessageCommand(this);
     }
 
     private JsonObject loadConfig() throws IOException {
@@ -77,6 +87,14 @@ public final class ViaEduardBot {
 
     public JDA getJda() {
         return jda;
+    }
+
+    public Guild getGuild() {
+        return guild;
+    }
+
+    public CommandHandler getCommandHandler() {
+        return commandHandler;
     }
 
     public Version getLatestRelease(final String platform) {

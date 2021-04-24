@@ -106,6 +106,12 @@ public final class DumpMessageListener extends ListenerAdapter {
         final JsonArray plugins = platformDump.getAsJsonArray("plugins");
         final String platformName = versionInfo.getAsJsonPrimitive("platformName").getAsString();
         final boolean isSpigot = platformName.equals("CraftBukkit");
+        if (platformName.equals("Yatopia")) {
+            message.addReaction("U+1F4A5").queue(); // Collision/explosion
+            EmbedMessageUtil.sendMessage(message.getTextChannel(), "Yatopia is known to break quite often and is not supported by us. " +
+                    "Consider using Tuinity/Purpur for the best performance without a loss in stability.", Color.RED);
+        }
+
         boolean hasProtocolSupport = false;
         for (final JsonElement pluginElement : plugins) {
             if (!pluginElement.isJsonObject()) continue;

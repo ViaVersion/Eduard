@@ -113,18 +113,20 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
 
         boolean hasProtocolSupport = false;
-        for (final JsonElement pluginElement : plugins) {
-            if (!pluginElement.isJsonObject()) continue;
+        if (plugins != null) {
+            for (final JsonElement pluginElement : plugins) {
+                if (!pluginElement.isJsonObject()) continue;
 
-            final JsonPrimitive name = pluginElement.getAsJsonObject().getAsJsonPrimitive("name");
-            if (name == null) continue;
+                final JsonPrimitive name = pluginElement.getAsJsonObject().getAsJsonPrimitive("name");
+                if (name == null) continue;
 
-            final String pluginName = name.getAsString();
-            if (pluginName.equals("ProtocolSupport")) {
-                hasProtocolSupport = true;
-                if (isSpigot) {
-                    message.addReaction("U+2757").queue(); // Exclamation mark
-                    EmbedMessageUtil.sendMessage(message.getTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
+                final String pluginName = name.getAsString();
+                if (pluginName.equals("ProtocolSupport")) {
+                    hasProtocolSupport = true;
+                    if (isSpigot) {
+                        message.addReaction("U+2757").queue(); // Exclamation mark
+                        EmbedMessageUtil.sendMessage(message.getTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
+                    }
                 }
             }
         }

@@ -16,19 +16,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>dv8tion</id>
-            <url>https://m2.dv8tion.net/releases</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.4.0_351</version>
-            <scope>compile</scope>
+            <version>5.0.0-alpha.2</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

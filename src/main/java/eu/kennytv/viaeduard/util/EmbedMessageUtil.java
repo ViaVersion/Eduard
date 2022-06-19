@@ -21,7 +21,7 @@ public final class EmbedMessageUtil {
     }
 
     public static void sendMessage(final TextChannel channel, final String message, final Color color) {
-        channel.sendMessage(getMessage(message, color)).queue();
+        channel.sendMessageEmbeds(getMessage(message, color)).queue();
     }
 
     public static void sendMessage(final TextChannel channel, final String message) {
@@ -37,7 +37,7 @@ public final class EmbedMessageUtil {
     }
 
     private static void sendTempMessage(final TextChannel channel, final Message message, final String error, final Color color) {
-        final Message msg = channel.sendMessage(EmbedMessageUtil.getMessage(error, color)).complete();
+        final Message msg = channel.sendMessageEmbeds(EmbedMessageUtil.getMessage(error, color)).complete();
         message.delete().queueAfter(5, TimeUnit.SECONDS);
         msg.delete().queueAfter(5, TimeUnit.SECONDS);
     }

@@ -13,7 +13,6 @@ import eu.kennytv.viaeduard.util.Version;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.internal.utils.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -22,7 +21,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public final class DumpMessageListener extends ListenerAdapter {
 
@@ -99,8 +102,6 @@ public final class DumpMessageListener extends ListenerAdapter {
             return;
         }
 
-        boolean radioactive = false;
-
         // Check for the evil
         final JsonObject platformDump = object.getAsJsonObject("platformDump");
         final JsonArray plugins = platformDump.getAsJsonArray("plugins");
@@ -134,58 +135,69 @@ public final class DumpMessageListener extends ListenerAdapter {
         // Send data for ViaVersion
         final String pluginVersion = versionInfo.getAsJsonPrimitive("pluginVersion").getAsString();
         final Version version = new Version(pluginVersion);
-        final ImmutablePair<String, Color> pair = compareToRemote("ViaVersion", version, implementationVersion.getAsString());
+        final Collection<CompareResult> compareResults = new LinkedList<>();
+        final CompareResult compareResult = compareToRemote("ViaVersion", version, implementationVersion.getAsString());
+        compareResults.add(compareResult);
         // Append platform data
-        final String s = pair.left + String.format(PLATFORM_FORMAT, platformName,
+        final String s = compareResult.message + String.format(PLATFORM_FORMAT, platformName,
                 versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
-        EmbedMessageUtil.sendMessage(message.getTextChannel(), s, pair.right);
-        if (pair.right == Color.RED) {
-            message.addReaction("U+2623").queue(); // Radioactive
-            radioactive = true;
-        }
+        EmbedMessageUtil.sendMessage(message.getTextChannel(), s, compareResult.color);
 
         // Check for ViaBackwards/ViaRewind
         final JsonArray subplatformArray = versionInfo.getAsJsonArray("subPlatforms");
-        if (subplatformArray.isEmpty()) return;
 
-        for (final JsonElement element : subplatformArray) {
-            final String stringElement = element.getAsString();
-            for (final String subplatform : SUBPLATFORMS) {
-                if (stringElement.contains(subplatform)) {
-                    if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
-                        message.addReaction("U+26A1").queue(); // Lightning
-                        EmbedMessageUtil.sendMessage(message.getTextChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
+        if (!subplatformArray.isEmpty()) {
+            for (final JsonElement element : subplatformArray) {
+                final String stringElement = element.getAsString();
+                for (final String subplatform : SUBPLATFORMS) {
+                    if (stringElement.contains(subplatform)) {
+                        if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
+                            message.addReaction("U+26A1").queue(); // Lightning
+                            EmbedMessageUtil.sendMessage(message.getTextChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
+                        }
+
+                        // Found subplatform, check data
+                        compareResults.add(sendSubplatformInfo(subplatform, stringElement, message));
                     }
-
-                    // Found subplatform, check data
-                    radioactive |= sendSubplatformInfo(subplatform, stringElement, message, radioactive);
                 }
             }
         }
-    }
 
-    /**
-     * @return true if the subplatform is heavily outdated
-     */
-    private boolean sendSubplatformInfo(final String platform, final String data, final Message message, final boolean isRadioactive) {
-        final Version version = new Version(data.split("git-" + platform + "-")[1].split(":")[0]);
-        final ImmutablePair<String, Color> pair = compareToRemote(platform, version, data);
-        EmbedMessageUtil.sendMessage(message.getTextChannel(), pair.left, pair.right);
-        if (!isRadioactive && pair.right == Color.RED) {
-            // Add Radioactive if not already done
+        // Add Radioactive reaction for heavily outdated plugins
+        if (compareResults.stream().anyMatch(result -> result.status == VersionStatus.RADIOACTIVE)) {
             message.addReaction("U+2623").queue();
-            return true;
         }
-        return false;
+
+        // Send a message to tell the user to update to latest build from CI (#links)
+        if (compareResults.stream().anyMatch(result -> result.status == VersionStatus.RADIOACTIVE || result.status == VersionStatus.OUTDATED)) {
+            List<String> pluginsToUpdate = compareResults.stream().filter(result -> result.status != VersionStatus.UPDATED_CI && result.status != VersionStatus.UNKNOWN)
+                    .map(result -> result.pluginName)
+                    .collect(Collectors.toList());
+            StringBuilder updateMessage = new StringBuilder();
+            if (pluginsToUpdate.size() > 1) {
+                updateMessage.append("plugins ").append(String.join(", ", pluginsToUpdate.subList(0, pluginsToUpdate.size() - 1)));
+                updateMessage.append(" and ").append(pluginsToUpdate.get(pluginsToUpdate.size() - 1));
+            } else {
+                updateMessage.append("plugin ").append(pluginsToUpdate.get(0));
+            }
+            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update "+updateMessage+" from #links, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
+        }
     }
 
-    private ImmutablePair<String, Color> compareToRemote(final String pluginName, final Version version, final String commitData) {
+    private CompareResult sendSubplatformInfo(final String platform, final String data, final Message message) {
+        final Version version = new Version(data.split("git-" + platform + "-")[1].split(":")[0]);
+        final CompareResult result = compareToRemote(platform, version, data);
+        EmbedMessageUtil.sendMessage(message.getTextChannel(), result.message, result.color);
+        return result;
+    }
+
+    private CompareResult compareToRemote(final String pluginName, final Version version, final String commitData) {
         final String versionInfo = String.format(FORMAT, pluginName, version);
         final Version latestRelease = bot.getLatestRelease(pluginName);
         if (version.equals(latestRelease)) {
-            return new ImmutablePair<>(versionInfo, Color.GREEN);
+            return new CompareResult(pluginName, versionInfo, Color.GREEN, VersionStatus.UPDATED_RELEASE);
         } else if (version.compareTo(latestRelease) == -1) {
-            return new ImmutablePair<>("**Your " + pluginName + " is outdated!**\n" + versionInfo, Color.RED);
+            return new CompareResult(pluginName, "**Your " + pluginName + " is outdated!**\n" + versionInfo, Color.RED, VersionStatus.RADIOACTIVE);
         }
 
         final String commit = commitData.split(":")[1];
@@ -204,11 +216,29 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         // Commit does not exist / http error
         if (distance == -1) {
-            return new ImmutablePair<>("**Error fetching commit data**\n" + versionInfo, Color.GRAY);
+            return new CompareResult(pluginName, "**Error fetching commit data**\n" + versionInfo, Color.GRAY, VersionStatus.UNKNOWN);
         } else if (distance == 0) {
-            return new ImmutablePair<>("You are even with **" + trackedBranch + "**\n" + versionInfo, Color.CYAN);
+            return new CompareResult(pluginName, "You are even with **" + trackedBranch + "**\n" + versionInfo, Color.CYAN, VersionStatus.UPDATED_CI);
         } else {
-            return new ImmutablePair<>("**You are " + distance + " commit(s) behind " + trackedBranch + "**\n" + versionInfo, Color.ORANGE);
+            return new CompareResult(pluginName, "**You are " + distance + " commit(s) behind " + trackedBranch + "**\n" + versionInfo, Color.ORANGE, VersionStatus.OUTDATED);
         }
+    }
+
+    private static class CompareResult {
+        private final String pluginName;
+        private final String message;
+        private final Color color;
+        private final VersionStatus status;
+
+        public CompareResult(String pluginName, String message, Color color, VersionStatus status) {
+            this.pluginName = pluginName;
+            this.message = message;
+            this.color = color;
+            this.status = status;
+        }
+    }
+
+    private enum VersionStatus {
+        UPDATED_CI, UPDATED_RELEASE, OUTDATED, RADIOACTIVE, UNKNOWN;
     }
 }

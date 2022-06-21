@@ -180,7 +180,7 @@ public final class DumpMessageListener extends ListenerAdapter {
             } else {
                 updateMessage.append("plugin ").append(pluginsToUpdate.get(0));
             }
-            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update "+updateMessage+" from #links, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
+            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update "+updateMessage+" from <#698284788074938388>, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
         }
     }
 

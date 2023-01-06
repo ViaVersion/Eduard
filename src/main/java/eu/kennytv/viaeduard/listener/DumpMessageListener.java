@@ -161,6 +161,13 @@ public final class DumpMessageListener extends ListenerAdapter {
                     }
                 }
             }
+
+            final int serverProtocol = object.getAsJsonPrimitive("serverProtocol").getAsInt();
+            if (serverProtocol > 107 // serverProtocol > 1.9
+                    && compareResults.stream().anyMatch(r -> r.pluginName.equals("ViaRewind"))
+                    && compareResults.stream().noneMatch(r -> r.pluginName.equals("ViaBackwards"))) {
+                EmbedMessageUtil.sendMessage(message.getTextChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#698284788074938388> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
+            }
         }
 
         // Add Radioactive reaction for heavily outdated plugins

@@ -10,11 +10,6 @@ import eu.kennytv.viaeduard.ViaEduardBot;
 import eu.kennytv.viaeduard.util.EmbedMessageUtil;
 import eu.kennytv.viaeduard.util.GitVersionUtil;
 import eu.kennytv.viaeduard.util.Version;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
-
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,6 +21,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 public final class DumpMessageListener extends ListenerAdapter {
 
@@ -41,14 +42,22 @@ public final class DumpMessageListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageReceived(@NotNull final GuildMessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
+        if (!event.isFromGuild() || !event.isFromType(ChannelType.TEXT) || event.isWebhookMessage()) {
+            return;
+        }
+
         String line = event.getMessage().getContentRaw();
         final int index = line.indexOf("https://dump.viaversion.com/");
-        if (index == -1) return;
+        if (index == -1) {
+            return;
+        }
 
         // Rate limit
         final long authorId = event.getAuthor().getIdLong();
-        if (recentlySent.getIfPresent(authorId) != null) return;
+        if (recentlySent.getIfPresent(authorId) != null) {
+            return;
+        }
 
         recentlySent.put(authorId, O);
 
@@ -59,7 +68,9 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
 
         line = line.substring(0, end == -1 ? line.length() : end);
-        if (line.length() == 28) return;
+        if (line.length() == 28) {
+            return;
+        }
 
         line = line.substring(0, 28) + "documents/" + line.substring(28);
         try {
@@ -96,9 +107,9 @@ public final class DumpMessageListener extends ListenerAdapter {
         final JsonObject versionInfo = object.getAsJsonObject("versionInfo");
         final JsonPrimitive implementationVersion = versionInfo.getAsJsonPrimitive("implementationVersion");
         if (implementationVersion == null) {
-            EmbedMessageUtil.sendMessage(message.getTextChannel(),
+            EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(),
                     "Your ViaVersion is outdated! Please download the latest stable release from https://viaversion.com/", Color.RED);
-            message.addReaction("U+2623").queue(); // Radioactive
+            message.addReaction(Emoji.fromUnicode("U+2623")).queue(); // Radioactive
             return;
         }
 
@@ -108,8 +119,8 @@ public final class DumpMessageListener extends ListenerAdapter {
         final String platformName = versionInfo.getAsJsonPrimitive("platformName").getAsString();
         final boolean isSpigot = platformName.equals("CraftBukkit");
         if (platformName.equals("Yatopia")) {
-            message.addReaction("U+1F4A5").queue(); // Collision/explosion
-            EmbedMessageUtil.sendMessage(message.getTextChannel(), "Yatopia is known to break quite often and is not supported by us. " +
+            message.addReaction(Emoji.fromUnicode("U+1F4A5")).queue(); // Collision/explosion
+            EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Yatopia is known to break quite often and is not supported by us. " +
                     "Consider using Tuinity/Purpur for the best performance without a loss in stability.", Color.RED);
         }
 
@@ -125,8 +136,8 @@ public final class DumpMessageListener extends ListenerAdapter {
                 if (pluginName.equals("ProtocolSupport")) {
                     hasProtocolSupport = true;
                     if (isSpigot) {
-                        message.addReaction("U+2757").queue(); // Exclamation mark
-                        EmbedMessageUtil.sendMessage(message.getTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
+                        message.addReaction(Emoji.fromUnicode("U+2757")).queue(); // Exclamation mark
+                        EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
                     }
                 }
             }
@@ -141,7 +152,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         // Append platform data
         final String s = compareResult.message + String.format(PLATFORM_FORMAT, platformName,
                 versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
-        EmbedMessageUtil.sendMessage(message.getTextChannel(), s, compareResult.color);
+        EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), s, compareResult.color);
 
         // Check for ViaBackwards/ViaRewind
         final JsonArray subplatformArray = versionInfo.getAsJsonArray("subPlatforms");
@@ -152,8 +163,8 @@ public final class DumpMessageListener extends ListenerAdapter {
                 for (final String subplatform : SUBPLATFORMS) {
                     if (stringElement.contains(subplatform)) {
                         if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
-                            message.addReaction("U+26A1").queue(); // Lightning
-                            EmbedMessageUtil.sendMessage(message.getTextChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
+                            message.addReaction(Emoji.fromUnicode("U+26A1")).queue(); // Lightning
+                            EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
                         }
 
                         // Found subplatform, check data
@@ -162,17 +173,17 @@ public final class DumpMessageListener extends ListenerAdapter {
                 }
             }
 
-            final int serverProtocol = object.getAsJsonPrimitive("serverProtocol").getAsInt();
+            final int serverProtocol = versionInfo.getAsJsonPrimitive("serverProtocol").getAsInt();
             if (serverProtocol > 107 // serverProtocol > 1.9
                     && compareResults.stream().anyMatch(r -> r.pluginName.equals("ViaRewind"))
                     && compareResults.stream().noneMatch(r -> r.pluginName.equals("ViaBackwards"))) {
-                EmbedMessageUtil.sendMessage(message.getTextChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#698284788074938388> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
+                EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#698284788074938388> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
             }
         }
 
         // Add Radioactive reaction for heavily outdated plugins
         if (compareResults.stream().anyMatch(result -> result.status == VersionStatus.RADIOACTIVE)) {
-            message.addReaction("U+2623").queue();
+            message.addReaction(Emoji.fromUnicode("U+2623")).queue();
         }
 
         // Send a message to tell the user to update to latest build from CI (#links)
@@ -187,14 +198,14 @@ public final class DumpMessageListener extends ListenerAdapter {
             } else {
                 updateMessage.append("plugin ").append(pluginsToUpdate.get(0));
             }
-            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update "+updateMessage+" from <#698284788074938388>, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
+            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update " + updateMessage + " from <#698284788074938388>, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
         }
     }
 
     private CompareResult sendSubplatformInfo(final String platform, final String data, final Message message) {
         final Version version = new Version(data.split("git-" + platform + "-")[1].split(":")[0]);
         final CompareResult result = compareToRemote(platform, version, data);
-        EmbedMessageUtil.sendMessage(message.getTextChannel(), result.message, result.color);
+        EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), result.message, result.color);
         return result;
     }
 
@@ -203,7 +214,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         final Version latestRelease = bot.getLatestRelease(pluginName);
         if (version.equals(latestRelease)) {
             return new CompareResult(pluginName, versionInfo, Color.GREEN, VersionStatus.UPDATED_RELEASE);
-        } else if (version.compareTo(latestRelease) == -1) {
+        } else if (version.compareTo(latestRelease) < 0) {
             return new CompareResult(pluginName, "**Your " + pluginName + " is outdated!**\n" + versionInfo, Color.RED, VersionStatus.RADIOACTIVE);
         }
 

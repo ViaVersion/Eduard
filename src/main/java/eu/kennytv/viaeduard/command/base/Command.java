@@ -3,7 +3,7 @@ package eu.kennytv.viaeduard.command.base;
 import eu.kennytv.viaeduard.ViaEduardBot;
 import eu.kennytv.viaeduard.util.EmbedMessageUtil;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public abstract class Command {

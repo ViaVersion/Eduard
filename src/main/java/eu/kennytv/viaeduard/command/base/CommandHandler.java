@@ -1,12 +1,12 @@
 package eu.kennytv.viaeduard.command.base;
 
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public final class CommandHandler extends ListenerAdapter {
 
@@ -14,6 +14,10 @@ public final class CommandHandler extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
+        if (event.isWebhookMessage() || !event.isFromType(ChannelType.TEXT)) {
+            return;
+        }
+
         final String content = event.getMessage().getContentRaw();
         if (content.length() < 2 || content.charAt(0) != '.') return;
         if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) return;
@@ -21,7 +25,9 @@ public final class CommandHandler extends ListenerAdapter {
         final String[] split = content.substring(1).split(" ");
         final String cmd = split[0].toLowerCase();
         final Command command = commands.get(cmd);
-        if (command == null) return;
+        if (command == null) {
+            return;
+        }
 
         final String[] args = Arrays.copyOfRange(split, 1, split.length);
         if (event.getMember().hasPermission(Permission.ADMINISTRATOR)) {

@@ -59,7 +59,6 @@ public final class Version implements Comparable<Version> {
     public boolean equals(final Object o) {
         if (o == this) return true;
         if (!(o instanceof Version)) return false;
-        final Version other = (Version) o;
-        return version.equals(other.version);
+        return version.equals(((Version) o).version);
     }
 }

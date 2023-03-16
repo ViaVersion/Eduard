@@ -6,22 +6,22 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import eu.kennytv.viaeduard.command.MessageCommand;
+import eu.kennytv.viaeduard.command.ScanDumpsCommand;
 import eu.kennytv.viaeduard.command.base.CommandHandler;
 import eu.kennytv.viaeduard.listener.DumpMessageListener;
 import eu.kennytv.viaeduard.listener.FileMessageListener;
 import eu.kennytv.viaeduard.listener.HelpMessageListener;
 import eu.kennytv.viaeduard.util.Version;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Guild;
-
-import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public final class ViaEduardBot {
 
@@ -46,7 +46,8 @@ public final class ViaEduardBot {
             throw new RuntimeException(e);
         }
 
-        final JDABuilder builder = JDABuilder.createDefault(object.getAsJsonPrimitive("token").getAsString());
+        final String token = object.getAsJsonPrimitive("token").getAsString();
+        final JDABuilder builder = JDABuilder.createDefault(token, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES);
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
         commandHandler = new CommandHandler();
@@ -58,13 +59,14 @@ public final class ViaEduardBot {
 
         try {
             jda = builder.build().awaitReady();
-        } catch (final LoginException | InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
 
         guild = jda.getGuildById(316206679014244363L);
 
         new MessageCommand(this);
+        new ScanDumpsCommand(this);
     }
 
     private JsonObject loadConfig() throws IOException {

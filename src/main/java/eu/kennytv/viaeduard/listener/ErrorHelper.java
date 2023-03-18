@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -52,20 +51,27 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
 
-// https://github.com/EngineHub/EngineHub-Bot/blob/master/src/main/java/org/enginehub/discord/module/errorHelper/ErrorHelper.java (see above copyright header)
-// Changed to use fuzzy string matching and set error containers to check
+// Loosely based on https://github.com/EngineHub/EngineHub-Bot/blob/master/src/main/java/org/enginehub/discord/module/errorHelper/ErrorHelper.java (see above copyright header)
 public class ErrorHelper extends ListenerAdapter {
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("OCR Task %d").build());
-    private final Tesseract tesseract;
-    private final ViaEduardBot bot;
+    private static final int MAX_IMAGE_BYTES = 1024 * 1024 * 5;
+    private static final int MAX_FILE_BYTES = 1024 * 1024 * 5;
+    private final ExecutorService executorService = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("OCR Task %d").build());
     private final List<ErrorEntry> errorMessages = new ArrayList<>();
+    private final String tessDataPath = Path.of("tessdata").toAbsolutePath().toString();
+    private final boolean enableImageScanning;
+    private final ViaEduardBot bot;
 
     public ErrorHelper(final ViaEduardBot bot, final JsonObject object) {
         this.bot = bot;
 
         for (final Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            if (!entry.getValue().isJsonObject()) {
+                continue;
+            }
+
             final JsonObject errorObject = entry.getValue().getAsJsonObject();
             final ErrorEntry errorEntry = new ErrorEntry(
                     entry.getKey(),
@@ -77,10 +83,7 @@ public class ErrorHelper extends ListenerAdapter {
             errorMessages.add(errorEntry);
         }
 
-        final Path tessDataPath = Paths.get("tessdata");
-        tesseract = new Tesseract();
-        tesseract.setDatapath(tessDataPath.toAbsolutePath().toString());
-        System.out.println("Loaded Tesseract data");
+        enableImageScanning = object.getAsJsonPrimitive("enable-image-scanning").getAsBoolean();
     }
 
     @Override
@@ -101,7 +104,7 @@ public class ErrorHelper extends ListenerAdapter {
         for (final Message.Attachment attachment : message.getAttachments()) {
             final String fileName = attachment.getFileName();
             if (fileName.endsWith(".txt") || fileName.endsWith(".log")) {
-                if (attachment.getSize() > 1024 * 1024 * 5) {
+                if (attachment.getSize() > MAX_FILE_BYTES) {
                     continue;
                 }
 
@@ -113,28 +116,48 @@ public class ErrorHelper extends ListenerAdapter {
                     }
                 } catch (final IOException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
+                    continue;
                 }
 
                 handle(message, builder.toString(), ErrorContainer.FILE, sendDebug);
-            } else if (attachment.isImage()) {
+            } else if (enableImageScanning && attachment.isImage()) {
+                if (attachment.getSize() > MAX_IMAGE_BYTES) {
+                    continue;
+                }
+
                 executorService.execute(() -> readImage(attachment, message, sendDebug));
             }
         }
     }
 
     private void readImage(final Message.Attachment attachment, final Message message, final boolean sendDebug) {
+        final BufferedImage image;
         try (final InputStream is = attachment.getProxy().download().get()) {
-            final BufferedImage image = ImageIO.read(is);
-            final String text = tesseract.doOCR(image);
-            if (message.getAuthor().getIdLong() == 259465250716254210L && message.getChannel() instanceof PrivateChannel) {
-                message.getChannel().sendMessage("[OCR Debug] " + text).queue();
-            }
-
-            handle(message, text, ErrorContainer.IMAGE, sendDebug);
-        } catch (final Throwable t) {
-            System.err.println("Tesseract failed to OCR image");
-            t.printStackTrace();
+            image = ImageIO.read(is);
+        } catch (final Exception e) {
+            System.err.println("Error while reading image: " + attachment.getUrl());
+            e.printStackTrace();
+            return;
         }
+
+        final String text;
+        try {
+            final Tesseract tesseract = new Tesseract();
+            tesseract.setDatapath(tessDataPath);
+            text = tesseract.doOCR(image);
+        } catch (final TesseractException e) {
+            System.err.println("Error while doing OCR on image: " + attachment.getUrl());
+            e.printStackTrace();
+            return;
+        } finally {
+            image.flush();
+        }
+
+        if (message.getAuthor().getIdLong() == 259465250716254210L && message.getChannel() instanceof PrivateChannel) {
+            message.getChannel().sendMessage("[OCR Debug] " + text).queue();
+        }
+
+        handle(message, text, ErrorContainer.IMAGE, sendDebug);
     }
 
     private void handle(final Message message, final String messageContent, final ErrorContainer errorContainer, final boolean sendDebug) {
@@ -149,8 +172,9 @@ public class ErrorHelper extends ListenerAdapter {
             message.getChannel().sendMessage(response + " " + message.getAuthor().getAsMention()).queue();
 
             if (sendDebug) {
-                final String debugMessage = "Triggered " + entry.name() + " on " + message.getJumpUrl()
-                        + "\nConfidence: " + result.confidence() + " (required " + entry.requiredConfidence() + ")";
+                final String debugMessage = "Triggered " + entry.name() + " on " + message.getJumpUrl() + " (required confidence: " + entry.requiredConfidence() + ")"
+                        + "\nPartial confidence: " + result.heighestPartialRatio()
+                        + "\nWeighted confidence: " + result.heighestWeightedRatio();
                 bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannel()).sendMessage(debugMessage).queue();
             }
         }
@@ -213,16 +237,19 @@ public class ErrorHelper extends ListenerAdapter {
                 return Result.NONE;
             }
 
-            int heighestConfidence = 0;
+            int heighestPartialRatio = 0;
+            int heighestWeightedRatio = 0;
             for (final String cleanedTrigger : cleanedTriggers) {
-                final int confidence = FuzzySearch.weightedRatio(cleanedTrigger, error);
-                if (confidence < requiredConfidence) {
+                final int partialRatio = FuzzySearch.partialRatio(cleanedTrigger, error);
+                final int weightedRatio = FuzzySearch.weightedRatio(cleanedTrigger, error);
+                if (partialRatio < requiredConfidence || weightedRatio < requiredConfidence) {
                     return Result.NONE;
                 }
 
-                heighestConfidence = Math.max(heighestConfidence, confidence);
+                heighestPartialRatio = Math.max(heighestPartialRatio, partialRatio);
+                heighestWeightedRatio = Math.max(heighestWeightedRatio, weightedRatio);
             }
-            return new Result(true, heighestConfidence);
+            return new Result(true, heighestPartialRatio, heighestWeightedRatio);
         }
 
         public String name() {
@@ -239,21 +266,27 @@ public class ErrorHelper extends ListenerAdapter {
     }
 
     public static final class Result {
-        private static final Result NONE = new Result(false, 0);
+        private static final Result NONE = new Result(false, 0, 0);
         private final boolean triggered;
-        private final int confidence;
+        private final int heighestPartialRatio;
+        private final int heighestWeightedRatio;
 
-        Result(final boolean triggered, final int confidence) {
+        Result(final boolean triggered, final int heighestPartialRatio, final int heighestWeightedRatio) {
             this.triggered = triggered;
-            this.confidence = confidence;
+            this.heighestPartialRatio = heighestPartialRatio;
+            this.heighestWeightedRatio = heighestWeightedRatio;
         }
 
         public boolean triggered() {
             return triggered;
         }
 
-        public int confidence() {
-            return confidence;
+        public int heighestPartialRatio() {
+            return heighestPartialRatio;
+        }
+
+        public int heighestWeightedRatio() {
+            return heighestWeightedRatio;
         }
     }
 }

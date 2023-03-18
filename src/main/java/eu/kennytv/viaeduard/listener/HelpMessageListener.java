@@ -36,8 +36,13 @@ public final class HelpMessageListener extends ListenerAdapter {
 
         if (event.getChannel() instanceof PrivateChannel) {
             final long id = event.getAuthor().getIdLong();
-            if (id == bot.getJda().getSelfUser().getIdLong()
-                    || recentlySentPrivate.getIfPresent(id) != null) {
+            if (id == bot.getJda().getSelfUser().getIdLong()) {
+                return;
+            }
+
+            System.out.println(event.getMessage().getContentStripped());
+
+            if (recentlySentPrivate.getIfPresent(id) != null) {
                 return;
             }
 

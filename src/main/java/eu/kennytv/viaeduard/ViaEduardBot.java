@@ -9,6 +9,7 @@ import eu.kennytv.viaeduard.command.MessageCommand;
 import eu.kennytv.viaeduard.command.ScanDumpsCommand;
 import eu.kennytv.viaeduard.command.base.CommandHandler;
 import eu.kennytv.viaeduard.listener.DumpMessageListener;
+import eu.kennytv.viaeduard.listener.ErrorHelper;
 import eu.kennytv.viaeduard.listener.FileMessageListener;
 import eu.kennytv.viaeduard.listener.HelpMessageListener;
 import eu.kennytv.viaeduard.util.Version;
@@ -30,6 +31,7 @@ public final class ViaEduardBot {
     private final CommandHandler commandHandler;
     private final JDA jda;
     private final Guild guild;
+    private long botChannel;
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
@@ -47,7 +49,7 @@ public final class ViaEduardBot {
         }
 
         final String token = object.getAsJsonPrimitive("token").getAsString();
-        final JDABuilder builder = JDABuilder.createDefault(token, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES);
+        final JDABuilder builder = JDABuilder.createDefault(token, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES);
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
         commandHandler = new CommandHandler();
@@ -56,6 +58,7 @@ public final class ViaEduardBot {
         builder.addEventListeners(new DumpMessageListener(this));
         builder.addEventListeners(new HelpMessageListener(this));
         builder.addEventListeners(new FileMessageListener(this));
+        builder.addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")));
 
         try {
             jda = builder.build().awaitReady();
@@ -84,6 +87,8 @@ public final class ViaEduardBot {
         for (int i = 0; i < trackedBranchesArray.size(); i++) {
             trackedBranches[i] = trackedBranchesArray.get(i).getAsString();
         }
+
+        botChannel = object.getAsJsonPrimitive("bot-channel").getAsLong();
         return object;
     }
 
@@ -113,5 +118,9 @@ public final class ViaEduardBot {
 
     public String getPrivateHelpMessage() {
         return privateHelpMessage;
+    }
+
+    public long getBotChannel() {
+        return botChannel;
     }
 }

@@ -188,10 +188,10 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         // Send a message to tell the user to update to latest build from CI (#links)
         if (compareResults.stream().anyMatch(result -> result.status == VersionStatus.RADIOACTIVE || result.status == VersionStatus.OUTDATED)) {
-            List<String> pluginsToUpdate = compareResults.stream().filter(result -> result.status != VersionStatus.UPDATED_CI && result.status != VersionStatus.UNKNOWN)
+            final List<String> pluginsToUpdate = compareResults.stream().filter(result -> result.status != VersionStatus.UPDATED_CI && result.status != VersionStatus.UNKNOWN)
                     .map(result -> result.pluginName)
                     .collect(Collectors.toList());
-            StringBuilder updateMessage = new StringBuilder();
+            final StringBuilder updateMessage = new StringBuilder();
             if (pluginsToUpdate.size() > 1) {
                 updateMessage.append("plugins ").append(String.join(", ", pluginsToUpdate.subList(0, pluginsToUpdate.size() - 1)));
                 updateMessage.append(" and ").append(pluginsToUpdate.get(pluginsToUpdate.size() - 1));
@@ -248,7 +248,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         private final Color color;
         private final VersionStatus status;
 
-        public CompareResult(String pluginName, String message, Color color, VersionStatus status) {
+        public CompareResult(final String pluginName, final String message, final Color color, final VersionStatus status) {
             this.pluginName = pluginName;
             this.message = message;
             this.color = color;

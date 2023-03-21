@@ -20,7 +20,7 @@ public final class CommandHandler extends ListenerAdapter {
 
         final String content = event.getMessage().getContentRaw();
         if (content.length() < 2 || content.charAt(0) != '.') return;
-        if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) return;
+        if (event.getAuthor().getIdLong() == event.getJDA().getSelfUser().getIdLong()) return;
 
         final String[] split = content.substring(1).split(" ");
         final String cmd = split[0].toLowerCase();

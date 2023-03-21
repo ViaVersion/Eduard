@@ -73,17 +73,19 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
 
         line = line.substring(0, 28) + "documents/" + line.substring(28);
+        HttpURLConnection connection = null;
         try {
-            sendRequest(event.getMessage(), line);
+            connection = (HttpURLConnection) new URL(line).openConnection();
+            sendRequest(event.getMessage(), line, connection);
         } catch (final IOException e) {
             System.err.println("Error requesting " + line);
             e.printStackTrace();
+        } finally {
+            connection.disconnect();
         }
     }
 
-    private void sendRequest(final Message message, final String url) throws IOException {
-        final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-
+    private void sendRequest(final Message message, final String url, final HttpURLConnection connection) throws IOException {
         connection.setRequestProperty("User-Agent", "ViaEduard/");
         connection.setRequestProperty("Content-Type", "text/plain");
 
@@ -127,19 +129,26 @@ public final class DumpMessageListener extends ListenerAdapter {
         boolean hasProtocolSupport = false;
         if (plugins != null) {
             for (final JsonElement pluginElement : plugins) {
-                if (!pluginElement.isJsonObject()) continue;
+                if (!pluginElement.isJsonObject()) {
+                    continue;
+                }
 
                 final JsonPrimitive name = pluginElement.getAsJsonObject().getAsJsonPrimitive("name");
-                if (name == null) continue;
+                if (name == null) {
+                    continue;
+                }
 
                 final String pluginName = name.getAsString();
-                if (pluginName.equals("ProtocolSupport")) {
-                    hasProtocolSupport = true;
-                    if (isSpigot) {
-                        message.addReaction(Emoji.fromUnicode("U+2757")).queue(); // Exclamation mark
-                        EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
-                    }
+                if (!pluginName.equals("ProtocolSupport")) {
+                    continue;
                 }
+
+                hasProtocolSupport = true;
+                if (isSpigot) {
+                    message.addReaction(Emoji.fromUnicode("U+2757")).queue(); // Exclamation mark
+                    EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
+                }
+                break;
             }
         }
 
@@ -161,15 +170,17 @@ public final class DumpMessageListener extends ListenerAdapter {
             for (final JsonElement element : subplatformArray) {
                 final String stringElement = element.getAsString();
                 for (final String subplatform : SUBPLATFORMS) {
-                    if (stringElement.contains(subplatform)) {
-                        if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
-                            message.addReaction(Emoji.fromUnicode("U+26A1")).queue(); // Lightning
-                            EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
-                        }
-
-                        // Found subplatform, check data
-                        compareResults.add(sendSubplatformInfo(subplatform, stringElement, message));
+                    if (!stringElement.contains(subplatform)) {
+                        continue;
                     }
+
+                    if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
+                        message.addReaction(Emoji.fromUnicode("U+26A1")).queue(); // Lightning
+                        EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
+                    }
+
+                    // Found subplatform, check data
+                    compareResults.add(sendSubplatformInfo(subplatform, stringElement, message));
                 }
             }
 

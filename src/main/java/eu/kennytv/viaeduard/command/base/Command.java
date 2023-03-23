@@ -3,7 +3,7 @@ package eu.kennytv.viaeduard.command.base;
 import eu.kennytv.viaeduard.ViaEduardBot;
 import eu.kennytv.viaeduard.util.EmbedMessageUtil;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public abstract class Command {
@@ -26,11 +26,11 @@ public abstract class Command {
         return name;
     }
 
-    protected void help(final TextChannel textChannel, final Message message) {
+    protected void help(final MessageChannelUnion textChannel, final Message message) {
         EmbedMessageUtil.sendHelpMessage(textChannel, message, getHelp());
     }
 
-    protected void error(final TextChannel textChannel, final Message message, final String error) {
+    protected void error(final MessageChannelUnion textChannel, final Message message, final String error) {
         EmbedMessageUtil.sendHelpMessage(textChannel, message, error);
     }
 }

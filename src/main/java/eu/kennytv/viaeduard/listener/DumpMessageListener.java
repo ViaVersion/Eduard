@@ -109,7 +109,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         final JsonObject versionInfo = object.getAsJsonObject("versionInfo");
         final JsonPrimitive implementationVersion = versionInfo.getAsJsonPrimitive("implementationVersion");
         if (implementationVersion == null) {
-            EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(),
+            EmbedMessageUtil.sendMessage(message.getChannel(),
                     "Your ViaVersion is outdated! Please download the latest stable release from https://viaversion.com/", Color.RED);
             message.addReaction(Emoji.fromUnicode("U+2623")).queue(); // Radioactive
             return;
@@ -122,7 +122,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         final boolean isSpigot = platformName.equals("CraftBukkit");
         if (platformName.equals("Yatopia")) {
             message.addReaction(Emoji.fromUnicode("U+1F4A5")).queue(); // Collision/explosion
-            EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Yatopia is known to break quite often and is not supported by us. " +
+            EmbedMessageUtil.sendMessage(message.getChannel(), "Yatopia is known to break quite often and is not supported by us. " +
                     "Consider using Tuinity/Purpur for the best performance without a loss in stability.", Color.RED);
         }
 
@@ -146,7 +146,7 @@ public final class DumpMessageListener extends ListenerAdapter {
                 hasProtocolSupport = true;
                 if (isSpigot) {
                     message.addReaction(Emoji.fromUnicode("U+2757")).queue(); // Exclamation mark
-                    EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
+                    EmbedMessageUtil.sendMessage(message.getChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
                 }
                 break;
             }
@@ -161,7 +161,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         // Append platform data
         final String s = compareResult.message + String.format(PLATFORM_FORMAT, platformName,
                 versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
-        EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), s, compareResult.color);
+        EmbedMessageUtil.sendMessage(message.getChannel(), s, compareResult.color);
 
         // Check for ViaBackwards/ViaRewind
         final JsonArray subplatformArray = versionInfo.getAsJsonArray("subPlatforms");
@@ -176,7 +176,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
                     if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
                         message.addReaction(Emoji.fromUnicode("U+26A1")).queue(); // Lightning
-                        EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
+                        EmbedMessageUtil.sendMessage(message.getChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
                     }
 
                     // Found subplatform, check data
@@ -188,7 +188,7 @@ public final class DumpMessageListener extends ListenerAdapter {
             if (serverProtocol > 107 // serverProtocol > 1.9
                     && compareResults.stream().anyMatch(r -> r.pluginName.equals("ViaRewind"))
                     && compareResults.stream().noneMatch(r -> r.pluginName.equals("ViaBackwards"))) {
-                EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#698284788074938388> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
+                EmbedMessageUtil.sendMessage(message.getChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#698284788074938388> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
             }
         }
 
@@ -216,7 +216,7 @@ public final class DumpMessageListener extends ListenerAdapter {
     private CompareResult sendSubplatformInfo(final String platform, final String data, final Message message) {
         final Version version = new Version(data.split("git-" + platform + "-")[1].split(":")[0]);
         final CompareResult result = compareToRemote(platform, version, data);
-        EmbedMessageUtil.sendMessage(message.getChannel().asTextChannel(), result.message, result.color);
+        EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
         return result;
     }
 

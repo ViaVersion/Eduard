@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import eu.kennytv.viaeduard.command.MemoryCommand;
 import eu.kennytv.viaeduard.command.MessageCommand;
 import eu.kennytv.viaeduard.command.ScanDumpsCommand;
 import eu.kennytv.viaeduard.command.base.CommandHandler;
@@ -70,6 +71,7 @@ public final class ViaEduardBot {
 
         new MessageCommand(this);
         new ScanDumpsCommand(this);
+        new MemoryCommand(this);
     }
 
     private JsonObject loadConfig() throws IOException {

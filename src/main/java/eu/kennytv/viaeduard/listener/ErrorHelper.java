@@ -218,6 +218,7 @@ public class ErrorHelper extends ListenerAdapter {
     }
 
     public static class ErrorEntry {
+        private static final double MIN_LENGTH = 0.8D;
         private final String name;
         private final List<String> cleanedTriggers;
         private final String response;
@@ -240,6 +241,10 @@ public class ErrorHelper extends ListenerAdapter {
             int heighestPartialRatio = 0;
             int heighestWeightedRatio = 0;
             for (final String cleanedTrigger : cleanedTriggers) {
+                if (error.length() < cleanedTrigger.length() * MIN_LENGTH) {
+                    return Result.NONE;
+                }
+
                 final int partialRatio = FuzzySearch.partialRatio(cleanedTrigger, error);
                 final int weightedRatio = FuzzySearch.weightedRatio(cleanedTrigger, error);
                 if (partialRatio < requiredConfidence || weightedRatio < requiredConfidence) {

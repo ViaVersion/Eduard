@@ -6,11 +6,6 @@ import com.google.gson.JsonPrimitive;
 import eu.kennytv.viaeduard.ViaEduardBot;
 import eu.kennytv.viaeduard.command.base.Command;
 import eu.kennytv.viaeduard.util.EmbedMessageUtil;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,6 +17,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public final class ScanDumpsCommand extends Command {
 
@@ -36,7 +36,7 @@ public final class ScanDumpsCommand extends Command {
 
     @Override
     public void action(final String[] args, final MessageReceivedEvent event) {
-        final TextChannel channel = event.getChannel().asTextChannel();
+        final MessageChannelUnion channel = event.getChannel();
         if (args.length != 1) {
             help(channel, event.getMessage());
             return;
@@ -72,7 +72,7 @@ public final class ScanDumpsCommand extends Command {
         }
     }
 
-    private void output(final TextChannel textChannel, final Map<Integer, Integer> javaVersions, final Map<Integer, Integer> mcVersions) {
+    private void output(final MessageChannelUnion textChannel, final Map<Integer, Integer> javaVersions, final Map<Integer, Integer> mcVersions) {
         int oldJava = 0;
         int modernJava = 0;
         final StringBuilder javaMessageBuilder = new StringBuilder("**Java versions**");

@@ -123,7 +123,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         if (platformName.equals("Yatopia")) {
             message.addReaction(Emoji.fromUnicode("U+1F4A5")).queue(); // Collision/explosion
             EmbedMessageUtil.sendMessage(message.getChannel(), "Yatopia is known to break quite often and is not supported by us. " +
-                    "Consider using Tuinity/Purpur for the best performance without a loss in stability.", Color.RED);
+                    "Consider using Paper/Purpur for the best performance without a loss in stability.", Color.RED);
         }
 
         boolean hasProtocolSupport = false;
@@ -146,7 +146,7 @@ public final class DumpMessageListener extends ListenerAdapter {
                 hasProtocolSupport = true;
                 if (isSpigot) {
                     message.addReaction(Emoji.fromUnicode("U+2757")).queue(); // Exclamation mark
-                    EmbedMessageUtil.sendMessage(message.getChannel(), "Via and ProtocolSupport only work together on Paper servers or one of its forks.", Color.RED);
+                    EmbedMessageUtil.sendMessage(message.getChannel(), "Via and ProtocolSupport only work together on Paper servers or one of it's forks!", Color.RED);
                 }
                 break;
             }
@@ -176,7 +176,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
                     if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
                         message.addReaction(Emoji.fromUnicode("U+26A1")).queue(); // Lightning
-                        EmbedMessageUtil.sendMessage(message.getChannel(), "Do not use ProtocolSupport and ViaBackwards together, please remove one of them.", Color.RED);
+                        EmbedMessageUtil.sendMessage(message.getChannel(), "Do not use ProtocolSupport and ViaBackwards (+ ViaRewind) together, Please remove one of them.", Color.RED);
                     }
 
                     // Found subplatform, check data

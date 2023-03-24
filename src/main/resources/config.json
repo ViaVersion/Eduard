@@ -1,11 +1,11 @@
 {
   "token": "",
   "latest-releases": {
-    "ViaVersion": "3.0.1",
-    "ViaBackwards": "3.0.1",
-    "ViaRewind": "1.5.0"
+    "ViaVersion": "4.6.1",
+    "ViaBackwards": "4.6.1",
+    "ViaRewind": "2.0.3"
   },
   "tracked-branches": ["master", "dev"],
-  "help-message": "Please explain your issue and patiently wait for a response :)\nConsider also checking pinned messages for common issues (icon in the top right)",
+  "help-message": "Please explain your issue and patiently wait for a response :)\nConsider also checking pinned messages for common issues. *(icon in the top right)*",
   "private-help-message": "Please don't message me, I am afraid of human contact. :(\nMaybe a mortal in the support channel over at the ViaVersion Discord can help you."
 }

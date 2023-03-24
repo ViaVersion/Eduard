@@ -36,7 +36,7 @@ public final class FileMessageListener extends ListenerAdapter {
             return fileExtension != null && (fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("log"));
         });
         if (hasLogsFile) {
-            event.getMessage().getChannel().asTextChannel().sendMessage("Please use https://paste.gg/ for sending long text, code, or server logs!").queue();
+            event.getMessage().getChannel().asTextChannel().sendMessage("Please use https://mclo.gs/ for sending long text, code, or server logs!").queue();
         }
     }
 }

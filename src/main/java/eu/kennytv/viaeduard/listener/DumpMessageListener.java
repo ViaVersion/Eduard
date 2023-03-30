@@ -91,7 +91,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         final int responseCode = connection.getResponseCode();
         if (responseCode != 200) {
-            System.out.println("Could not paste '" + url + "': " + responseCode);
+            //System.out.println("Could not paste '" + url + "': " + responseCode);
             return;
         }
 

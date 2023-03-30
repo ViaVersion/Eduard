@@ -40,8 +40,6 @@ public final class HelpMessageListener extends ListenerAdapter {
                 return;
             }
 
-            System.out.println(event.getMessage().getContentStripped());
-
             if (recentlySentPrivate.getIfPresent(id) != null) {
                 return;
             }

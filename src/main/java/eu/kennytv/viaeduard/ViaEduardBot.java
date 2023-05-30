@@ -32,7 +32,7 @@ public final class ViaEduardBot {
     private final CommandHandler commandHandler;
     private final JDA jda;
     private final Guild guild;
-    private long botChannel;
+    private long botChannelId;
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
@@ -90,7 +90,7 @@ public final class ViaEduardBot {
             trackedBranches[i] = trackedBranchesArray.get(i).getAsString();
         }
 
-        botChannel = object.getAsJsonPrimitive("bot-channel").getAsLong();
+        botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
         return object;
     }
 
@@ -122,7 +122,7 @@ public final class ViaEduardBot {
         return privateHelpMessage;
     }
 
-    public long getBotChannel() {
-        return botChannel;
+    public long getBotChannelId() {
+        return botChannelId;
     }
 }

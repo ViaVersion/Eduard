@@ -37,7 +37,6 @@ public final class EmbedMessageUtil {
 
     private static void sendTempMessage(final MessageChannelUnion channel, final Message message, final String error, final Color color) {
         final Message msg = channel.sendMessageEmbeds(EmbedMessageUtil.getMessage(error, color)).complete();
-        message.delete().queueAfter(5, TimeUnit.SECONDS);
-        msg.delete().queueAfter(5, TimeUnit.SECONDS);
+        message.delete().and(msg.delete()).queueAfter(5, TimeUnit.SECONDS);
     }
 }

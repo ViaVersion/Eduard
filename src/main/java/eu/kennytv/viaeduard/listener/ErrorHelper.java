@@ -175,7 +175,7 @@ public class ErrorHelper extends ListenerAdapter {
                 final String debugMessage = "Triggered " + entry.name() + " on " + message.getJumpUrl() + " (required confidence: " + entry.requiredConfidence() + ")"
                         + "\nPartial confidence: " + result.heighestPartialRatio()
                         + "\nWeighted confidence: " + result.heighestWeightedRatio();
-                bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannel()).sendMessage(debugMessage).queue();
+                bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId()).sendMessage(debugMessage).queue();
             }
         }
     }

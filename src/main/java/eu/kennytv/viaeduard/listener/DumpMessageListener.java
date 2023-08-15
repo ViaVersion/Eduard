@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DumpMessageListener extends ListenerAdapter {
 
     private static final Object O = new Object();
-    private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind"};
+    private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind", "ViaLegacy", "ViaAprilFools"};
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
     private static final String PLATFORM_FORMAT = "\nPlatform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();

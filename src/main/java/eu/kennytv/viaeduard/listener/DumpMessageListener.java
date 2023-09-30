@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DumpMessageListener extends ListenerAdapter {
 
     private static final Object O = new Object();
-    private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind", "ViaLegacy", "ViaAprilFools"};
+    private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind", "viarewind-common", "ViaLegacy", "ViaAprilFools"};
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
     private static final String PLATFORM_FORMAT = "\nPlatform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
@@ -213,8 +213,11 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
     }
 
-    private CompareResult sendSubplatformInfo(final String platform, final String data, final Message message) {
+    private CompareResult sendSubplatformInfo(String platform, final String data, final Message message) {
         final Version version = new Version(data.split("git-" + platform + "-")[1].split(":")[0]);
+        if (platform.equalsIgnoreCase("viarewind-common")) {
+            platform = "ViaRewind";
+        }
         final CompareResult result = compareToRemote(platform, version, data);
         EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
         return result;

@@ -43,7 +43,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
-        if (!event.isFromGuild() || !event.isFromType(ChannelType.TEXT) || event.isWebhookMessage()) {
+        if (!event.isFromGuild() || !event.isFromType(ChannelType.TEXT) || event.isWebhookMessage() || event.getAuthor().isBot()) {
             return;
         }
 
@@ -66,6 +66,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         if (end == -1) {
             end = line.indexOf(' ');
         }
+        line = line.replace(")", "");
 
         line = line.substring(0, end == -1 ? line.length() : end);
         if (line.length() == 28) {

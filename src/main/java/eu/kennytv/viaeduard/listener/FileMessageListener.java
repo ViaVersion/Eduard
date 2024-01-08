@@ -33,7 +33,7 @@ public final class FileMessageListener extends ListenerAdapter {
 
         final boolean hasLogsFile = event.getMessage().getAttachments().stream().anyMatch(attachment -> {
             final String fileExtension = attachment.getFileExtension();
-            return fileExtension != null && (fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("log"));
+            return fileExtension != null && (fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("log") || fileExtension.equalsIgnoreCase("gz"));
         });
         if (hasLogsFile) {
             event.getMessage().getChannel().asTextChannel().sendMessage("Please use https://mclo.gs/ for sending long text, code, or server logs!").queue();

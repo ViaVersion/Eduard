@@ -1,14 +1,44 @@
 {
   "token": "",
-  "latest-releases": {
-    "ViaVersion": "4.6.1",
-    "ViaBackwards": "4.6.1",
-    "ViaRewind": "2.0.3"
-  },
-  "tracked-branches": [
-    "master",
-    "dev"
+  "bot-channel": 698483428915675186,
+  "support-channel": 316208160232701955,
+  "not-support-channels": [
+    316218802155028482,
+    316206679014244363
   ],
+  "latest-releases": {
+    "ViaVersion": "4.9.2",
+    "ViaBackwards": "4.9.1",
+    "ViaRewind": "3.0.1"
+  },
+  "tracked-branches": ["master", "main", "dev"],
   "help-message": "Please explain your issue and patiently wait for a response :)\nConsider also checking pinned messages for common issues (icon in the top right)",
-  "private-help-message": "Please don't message me, I am afraid of human contact. :(\nMaybe a mortal in the support channel over at the ViaVersion Discord can help you."
+  "private-help-message": "Please don't message me, I am afraid of human contact. :(\nMaybe a mortal in the support channel over at the ViaVersion Discord can help you.",
+  "error-helper": {
+    "enable-image-scanning": true,
+    "Outdated": {
+      "match-text": ["Outdated server! I'm still on 1."],
+      "error-message": "Please make sure your ViaVersion/ViaBackwards/Viarewind and proxy (Velocity/BungeeCord) are up to date. Also note that ViaBackwards is required to allow older client versions on your server, and ViaRewind adds additional 1.7/1.8 client support.",
+      "confidence": 70,
+      "from": ["text", "file", "image"]
+    },
+    "InformativeException": {
+      "match-text": ["com.viaversion.viaversion.exception.InformativeException: Please report this on the Via support Discord or open an issue on the relevant GitHub repository"],
+      "error-message": "Please post your full server console log including the error to https://mclo.gs/ and link it here.",
+      "confidence": 70,
+      "from": ["text", "image"]
+    },
+    "BaseProtocol": {
+      "match-text": ["Source 0: com.viaversion.viaversion.protocols.base.BaseProtocol1_7$$Lambda$3268/0x000000080154a200"],
+      "error-message": "This error is most likely caused by your proxy software being out of date, or incompatibility with another plugin like limbo, or custom client.",
+      "confidence": 80,
+      "from": ["text", "file","image"]
+    },
+    "BlockedProtocols": {
+      "match-text": ["You are using an unsupported Minecraft version!"],
+      "error-message": "'You are using an unsupported Minecraft version!' is the default message for the blocked-versions/protocols setting. Please check your ViaVersion config and make sure you have the correct version set.",
+      "confidence": 80,
+      "from": ["text", "file","image"]
+    }
+  }
 }

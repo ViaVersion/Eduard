@@ -30,7 +30,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -168,6 +167,11 @@ public class ErrorHelper extends ListenerAdapter {
                 continue;
             }
 
+            if (bot.getNonSupportChannelIds().contains(message.getChannelIdLong())) {
+                bot.sendSupportChannelRedirect(message.getChannel(), message.getAuthor());
+                return;
+            }
+
             final String response = entry.response();
             message.getChannel().sendMessage(response + " " + message.getAuthor().getAsMention()).queue();
 
@@ -190,25 +194,6 @@ public class ErrorHelper extends ListenerAdapter {
                 .replace("‘", "'")
                 .replace("“", "\"")
                 .replace("”", "\"");
-    }
-
-    private static String getStringFromUrl0(final String url, final int tries) {
-        final StringBuilder main = new StringBuilder();
-
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                main.append(line);
-            }
-        } catch (final Throwable e) {
-            System.err.println("Failed to load URL " + url + " (Tries " + tries + ')');
-            e.printStackTrace();
-            if (tries < 5) {
-                return getStringFromUrl0(url, tries + 1);
-            }
-        }
-
-        return main.toString();
     }
 
     public enum ErrorContainer {

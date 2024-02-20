@@ -19,10 +19,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public final class ViaEduardBot {
@@ -33,6 +36,8 @@ public final class ViaEduardBot {
     private final JDA jda;
     private final Guild guild;
     private long botChannelId;
+    private long supportChannelId;
+    private Set<Long> nonSupportChannelIds;
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
@@ -90,8 +95,15 @@ public final class ViaEduardBot {
             trackedBranches[i] = trackedBranchesArray.get(i).getAsString();
         }
 
+        supportChannelId = object.getAsJsonPrimitive("support-channel").getAsLong();
+        nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
+                .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
         return object;
+    }
+
+    public void sendSupportChannelRedirect(final MessageChannel channel, final User user) {
+        channel.sendMessage("Please use one of the support channels for help " + user.getAsMention()).queue();
     }
 
     public JDA getJda() {
@@ -124,5 +136,13 @@ public final class ViaEduardBot {
 
     public long getBotChannelId() {
         return botChannelId;
+    }
+
+    public long getSupportChannelId() {
+        return supportChannelId;
+    }
+
+    public Set<Long> getNonSupportChannelIds() {
+        return nonSupportChannelIds;
     }
 }

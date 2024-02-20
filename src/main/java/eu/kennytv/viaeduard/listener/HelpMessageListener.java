@@ -3,7 +3,7 @@ package eu.kennytv.viaeduard.listener;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import eu.kennytv.viaeduard.ViaEduardBot;
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -16,8 +16,8 @@ import org.jetbrains.annotations.NotNull;
 
 public final class HelpMessageListener extends ListenerAdapter {
 
-    private static final String[] HELLOS = {"hi", "hello", "hey"};
-    private static final String[] THANKSES = {"thx for", "thanks for", "thank you for"};
+    private static final List<String> HELLOS = List.of("hi", "hello", "hey");
+    private static final List<String> THANKSES = List.of("thx for", "thanks for", "thank you for");
     private static final Object O = new Object();
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(3, TimeUnit.HOURS).build();
     private final Cache<Long, Object> recentlySentPrivate = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build();
@@ -66,7 +66,7 @@ public final class HelpMessageListener extends ListenerAdapter {
         // Hello check
         final Message message = event.getMessage();
         final String lowerCaseMessage = message.getContentRaw().toLowerCase();
-        if (lowerCaseMessage.contains("eduard") && Arrays.stream(HELLOS).anyMatch(lowerCaseMessage::contains)) {
+        if (lowerCaseMessage.contains("eduard") && HELLOS.stream().anyMatch(lowerCaseMessage::contains)) {
             if (hellos.getIfPresent(id) == null) {
                 hellos.put(id, O);
                 event.getChannel().sendMessage("Hello!").queue();
@@ -75,9 +75,14 @@ public final class HelpMessageListener extends ListenerAdapter {
         }
 
         // Help check
-        if (!lowerCaseMessage.contains("help") || Arrays.stream(THANKSES).anyMatch(lowerCaseMessage::contains)) return;
+        if (!lowerCaseMessage.contains("help") || THANKSES.stream().anyMatch(lowerCaseMessage::contains)) return;
         if (recentlySent.getIfPresent(id) != null) return;
         if (member.hasPermission(Permission.VOICE_MOVE_OTHERS)) return;
+
+        if (bot.getNonSupportChannelIds().contains(message.getChannelIdLong())) {
+            bot.sendSupportChannelRedirect(message.getChannel(), message.getAuthor());
+            return;
+        }
 
         event.getChannel().asTextChannel().sendMessage(bot.getHelpMessage()).queue();
         recentlySent.put(id, O);

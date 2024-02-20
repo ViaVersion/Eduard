@@ -2,6 +2,7 @@ package eu.kennytv.viaeduard.listener;
 
 import eu.kennytv.viaeduard.ViaEduardBot;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -31,12 +32,18 @@ public final class FileMessageListener extends ListenerAdapter {
             return;
         }
 
-        final boolean hasLogsFile = event.getMessage().getAttachments().stream().anyMatch(attachment -> {
+        final Message message = event.getMessage();
+        final boolean hasLogsFile = message.getAttachments().stream().anyMatch(attachment -> {
             final String fileExtension = attachment.getFileExtension();
             return fileExtension != null && (fileExtension.equalsIgnoreCase("txt") || fileExtension.equalsIgnoreCase("log") || fileExtension.equalsIgnoreCase("gz"));
         });
         if (hasLogsFile) {
-            event.getMessage().getChannel().asTextChannel().sendMessage("Please use https://mclo.gs/ for sending long text, code, or server logs!").queue();
+            if (bot.getNonSupportChannelIds().contains(message.getChannelIdLong())) {
+                bot.sendSupportChannelRedirect(message.getChannel(), message.getAuthor());
+                return;
+            }
+
+            message.getChannel().asTextChannel().sendMessage("Please use https://mclo.gs/ for sending long text, code, or server logs!").queue();
         }
     }
 }

@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import eu.kennytv.viaeduard.ViaEduardBot;
-import eu.kennytv.viaeduard.command.base.Command;
+import eu.kennytv.viaeduard.command.base.CommandHandler;
 import eu.kennytv.viaeduard.util.EmbedMessageUtil;
 import java.awt.*;
 import java.io.BufferedReader;
@@ -21,32 +21,30 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-public final class ScanDumpsCommand extends Command {
+public final class ScanDumpsCommand implements CommandHandler {
 
-    private static final long[] CHANNELS = {433742941257728012L, 316208160232701955L, 316218802155028482L, 316206679014244363L};
+    private static final long[] CHANNELS = {316208160232701955L, 1112835241271373966L, 1112837970844721342L};
     private static final int v1_16_4 = 754;
     private static final int OLD_KEY = -1000001;
     private static final int MODERN_KEY = 1000001;
+    private final ViaEduardBot bot;
 
-    public ScanDumpsCommand(final ViaEduardBot plugin) {
-        super("scandumps", plugin);
+    public ScanDumpsCommand(final ViaEduardBot bot) {
+        this.bot = bot;
     }
 
     @Override
-    public void action(final String[] args, final MessageReceivedEvent event) {
+    public void action(final SlashCommandInteractionEvent event) {
         final MessageChannelUnion channel = event.getChannel();
-        if (args.length != 1) {
-            help(channel, event.getMessage());
+        final int days = event.getInteraction().getOption("days").getAsInt();
+        if (days > 1000) {
+            event.reply("No").setEphemeral(true).queue();
             return;
         }
 
-        final int days = Integer.parseInt(args[0]);
-        if (days > 1000) {
-            error(channel, event.getMessage(), "No");
-            return;
-        }
+        event.reply("Scanning dumps...").setEphemeral(true).queue();
 
         final long until = (System.currentTimeMillis() / 1000) - TimeUnit.DAYS.toSeconds(days);
         final Set<Long> processed = new HashSet<>();
@@ -54,7 +52,7 @@ public final class ScanDumpsCommand extends Command {
         final Map<Integer, Integer> mcVersions = new TreeMap<>();
         final AtomicInteger counter = new AtomicInteger(CHANNELS.length);
         for (final long channelId : CHANNELS) {
-            final TextChannel textChannel = plugin.getGuild().getTextChannelById(channelId);
+            final TextChannel textChannel = bot.getGuild().getTextChannelById(channelId);
             textChannel.getIterableHistory().forEachRemainingAsync(action -> {
                 process(action, processed, javaVersions, mcVersions);
                 if (action.getTimeCreated().toEpochSecond() > until) {
@@ -117,11 +115,6 @@ public final class ScanDumpsCommand extends Command {
                 "\n\nMC >=1.16.4: " + modernMc +
                 "\nMC <1.16.4: " + oldMc;
         EmbedMessageUtil.sendMessage(textChannel, finalMessage, Color.ORANGE);
-    }
-
-    @Override
-    public String getHelp() {
-        return ".scandumps <days>";
     }
 
     private void process(final Message message, final Set<Long> processed, final Map<Integer, Integer> javaVersions, final Map<Integer, Integer> mcVersions) {
@@ -188,7 +181,7 @@ public final class ScanDumpsCommand extends Command {
             } else if (configuration.has("velocity-servers")) {
                 processServers(configuration.getAsJsonObject("velocity-servers"), mcVersions);
             } else {
-                final int ver = versionInfo.getAsJsonPrimitive("serverProtocol").getAsInt();
+                final int ver = parseVersion(versionInfo.getAsJsonPrimitive("serverProtocol").getAsString());
                 mcVersions.compute(ver, (k, v) -> v == null ? 1 : v + 1);
                 System.out.println("Adding MC version " + ver);
             }
@@ -197,6 +190,21 @@ public final class ScanDumpsCommand extends Command {
             System.err.println("Full: " + message.getContentRaw());
             e.printStackTrace();
         }
+    }
+
+    private int parseVersion(final String versionString) {
+        try {
+            return Integer.parseInt(versionString);
+        } catch (final NumberFormatException ignored) {
+        }
+
+        final int open = versionString.indexOf('(');
+        if (open == -1) {
+            System.err.println("Could not parse version: " + versionString);
+            return -1;
+        }
+
+        return parseVersion(versionString.substring(open + 1, versionString.length() - 1));
     }
 
     private void processServers(final JsonObject servers, final Map<Integer, Integer> mcVersions) {

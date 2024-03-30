@@ -139,6 +139,11 @@ public class ErrorHelper extends ListenerAdapter {
             return;
         }
 
+        if (image == null) {
+            System.err.println("Got null when reading image: " + attachment.getUrl());
+            return;
+        }
+
         final String text;
         try {
             final Tesseract tesseract = new Tesseract();

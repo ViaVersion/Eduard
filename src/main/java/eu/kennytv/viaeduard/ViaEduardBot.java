@@ -13,6 +13,7 @@ import eu.kennytv.viaeduard.listener.DumpMessageListener;
 import eu.kennytv.viaeduard.listener.ErrorHelper;
 import eu.kennytv.viaeduard.listener.FileMessageListener;
 import eu.kennytv.viaeduard.listener.HelpMessageListener;
+import eu.kennytv.viaeduard.listener.SlashCommandListener;
 import eu.kennytv.viaeduard.util.Version;
 import java.io.File;
 import java.io.IOException;
@@ -26,13 +27,17 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ViaEduardBot {
 
     public static final Gson GSON = new GsonBuilder().create();
     private final Map<String, Version> latestReleases = new HashMap<>();
-    private final CommandHandler commandHandler;
+    private final Map<String, CommandHandler> commands = new HashMap<>();
     private final JDA jda;
     private final Guild guild;
     private long botChannelId;
@@ -58,13 +63,12 @@ public final class ViaEduardBot {
         final JDABuilder builder = JDABuilder.createDefault(token, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES);
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
-        commandHandler = new CommandHandler();
 
-        builder.addEventListeners(commandHandler);
-        builder.addEventListeners(new DumpMessageListener(this));
-        builder.addEventListeners(new HelpMessageListener(this));
-        builder.addEventListeners(new FileMessageListener(this));
-        builder.addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")));
+        builder.addEventListeners(new SlashCommandListener(this))
+                .addEventListeners(new DumpMessageListener(this))
+                .addEventListeners(new HelpMessageListener(this))
+                .addEventListeners(new FileMessageListener(this))
+                .addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")));
 
         try {
             jda = builder.build().awaitReady();
@@ -74,9 +78,21 @@ public final class ViaEduardBot {
 
         guild = jda.getGuildById(316206679014244363L);
 
-        new MessageCommand(this);
-        new ScanDumpsCommand(this);
-        new MemoryCommand(this);
+        registerCommand(guild.upsertCommand("message", "Send a message into a channel")
+                .addOption(OptionType.CHANNEL, "channel", "Channel to send the message in", true)
+                .addOption(OptionType.STRING, "message", "Message to send", true)
+                .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MessageCommand());
+        registerCommand(guild.upsertCommand("scandumps", "Analyze sent dumps")
+                .addOption(OptionType.INTEGER, "days", "Days to go back", true)
+                .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
+                .setGuildOnly(true), new ScanDumpsCommand(this));
+        registerCommand(guild.upsertCommand("memory", "Display used and remaining memory of this bot instance")
+                .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MemoryCommand());
+    }
+
+    private void registerCommand(final CommandCreateAction action, final CommandHandler command) {
+        action.queue();
+        commands.put(action.getName(), command);
     }
 
     private JsonObject loadConfig() throws IOException {
@@ -106,16 +122,16 @@ public final class ViaEduardBot {
         channel.sendMessage("Please use one of the support channels for help " + user.getAsMention()).queue();
     }
 
+    public @Nullable CommandHandler getCommand(final String command) {
+        return commands.get(command);
+    }
+
     public JDA getJda() {
         return jda;
     }
 
     public Guild getGuild() {
         return guild;
-    }
-
-    public CommandHandler getCommandHandler() {
-        return commandHandler;
     }
 
     public Version getLatestRelease(final String platform) {

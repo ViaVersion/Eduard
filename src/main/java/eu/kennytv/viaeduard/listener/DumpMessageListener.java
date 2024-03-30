@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +34,7 @@ public final class DumpMessageListener extends ListenerAdapter {
     private static final Object O = new Object();
     private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind", "viarewind-common", "ViaLegacy", "ViaAprilFools"};
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
-    private static final String PLATFORM_FORMAT = "\nPlatform: `%s`\nPlatform version: `%s`";
+    private static final String PLATFORM_FORMAT = "Platform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
     private final ViaEduardBot bot;
 
@@ -77,7 +78,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(line).openConnection();
-            sendRequest(event.getMessage(), line, connection);
+            sendRequest(event.getMessage(), connection);
         } catch (final IOException e) {
             System.err.println("Error requesting " + line);
             e.printStackTrace();
@@ -86,7 +87,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
     }
 
-    private void sendRequest(final Message message, final String url, final HttpURLConnection connection) throws IOException {
+    private void sendRequest(final Message message, final HttpURLConnection connection) throws IOException {
         connection.setRequestProperty("User-Agent", "ViaEduard/");
         connection.setRequestProperty("Content-Type", "text/plain");
 
@@ -118,15 +119,43 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         // Check for the evil
         final JsonObject platformDump = object.getAsJsonObject("platformDump");
-        final JsonArray plugins = platformDump.getAsJsonArray("plugins");
+
+        // Either ViaProxy or ViaFabricPlus
+        if (platformDump.has("version") && platformDump.has("impl_version")) {
+            final String version = platformDump.getAsJsonPrimitive("version").getAsString();
+            final String implVersion = platformDump.getAsJsonPrimitive("impl_version").getAsString();
+            final boolean mod = implVersion.contains("ViaFabricPlus");
+
+            final CompareResult result = compareToRemote(PLATFORM_FORMAT, mod ? "ViaFabricPlus" : "ViaProxy", new Version(version), implVersion);
+            EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
+            reactAndSuggestUpdate(message, Collections.singleton(result), mod ? "mod" : "proxy");
+            return;
+        } else if (platformDump.has("mods")) { // Special handling for older ViaFabricPlus versions
+            final JsonArray mods = platformDump.getAsJsonArray("mods");
+            for (JsonElement mod : mods) {
+                if (!mod.isJsonObject()) {
+                    continue;
+                }
+                if (mod.getAsJsonObject().getAsJsonPrimitive("id").equals("viafabricplus")) {
+                    final String version = mod.getAsJsonObject().getAsJsonPrimitive("version").getAsString();
+
+                    final CompareResult result = compareToRemote(PLATFORM_FORMAT, "ViaFabricPlus", new Version(version), "");
+                    EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
+                    reactAndSuggestUpdate(message, Collections.singleton(result), "mod");
+                    return;
+                }
+            }
+        }
+
         final String platformName = versionInfo.getAsJsonPrimitive("platformName").getAsString();
-        final boolean isSpigot = platformName.equals("CraftBukkit");
         if (platformName.equals("Yatopia")) {
             message.addReaction(Emoji.fromUnicode("U+1F4A5")).queue(); // Collision/explosion
             EmbedMessageUtil.sendMessage(message.getChannel(), "Yatopia is known to break quite often and is not supported by us. " +
                     "Consider using Paper/Purpur for the best performance without a loss in stability.", Color.RED);
         }
 
+        final JsonArray plugins = platformDump.getAsJsonArray("plugins");
+        final boolean isSpigot = platformName.equals("CraftBukkit");
         boolean hasProtocolSupport = false;
         if (plugins != null) {
             for (final JsonElement pluginElement : plugins) {
@@ -160,11 +189,11 @@ public final class DumpMessageListener extends ListenerAdapter {
         final CompareResult compareResult = compareToRemote("ViaVersion", version, implementationVersion.getAsString());
         compareResults.add(compareResult);
         // Append platform data
-        final String s = compareResult.message + String.format(PLATFORM_FORMAT, platformName,
+        final String s = compareResult.message + "\n" + String.format(PLATFORM_FORMAT, platformName,
                 versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
         EmbedMessageUtil.sendMessage(message.getChannel(), s, compareResult.color);
 
-        // Check for ViaBackwards/ViaRewind
+        // Check for existing subplatforms
         final JsonArray subplatformArray = versionInfo.getAsJsonArray("subPlatforms");
 
         if (!subplatformArray.isEmpty()) {
@@ -196,7 +225,12 @@ public final class DumpMessageListener extends ListenerAdapter {
             }
         }
 
-        // Add Radioactive reaction for heavily outdated plugins
+        // Send message to user to update outdated plugins
+        reactAndSuggestUpdate(message, compareResults, "plugin");
+    }
+
+    private void reactAndSuggestUpdate(final Message message, final Collection<CompareResult> compareResults, final String platformType) {
+        // Add Radioactive reaction for heavily outdated plugins/mods
         if (compareResults.stream().anyMatch(result -> result.status == VersionStatus.RADIOACTIVE)) {
             message.addReaction(Emoji.fromUnicode("U+2623")).queue();
         }
@@ -208,12 +242,12 @@ public final class DumpMessageListener extends ListenerAdapter {
                     .collect(Collectors.toList());
             final StringBuilder updateMessage = new StringBuilder();
             if (pluginsToUpdate.size() > 1) {
-                updateMessage.append("plugins ").append(String.join(", ", pluginsToUpdate.subList(0, pluginsToUpdate.size() - 1)));
+                updateMessage.append(platformType).append("s ").append(String.join(", ", pluginsToUpdate.subList(0, pluginsToUpdate.size() - 1)));
                 updateMessage.append(" and ").append(pluginsToUpdate.get(pluginsToUpdate.size() - 1));
             } else {
-                updateMessage.append("plugin ").append(pluginsToUpdate.get(0));
+                updateMessage.append(platformType).append(" ").append(pluginsToUpdate.get(0));
             }
-            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update " + updateMessage + " from <#698284788074938388>, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
+            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update the " + updateMessage + " from <#698284788074938388>, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
         }
     }
 
@@ -227,20 +261,24 @@ public final class DumpMessageListener extends ListenerAdapter {
         return result;
     }
 
-    private CompareResult compareToRemote(final String pluginName, final Version version, final String commitData) {
-        final String versionInfo = String.format(FORMAT, pluginName, version);
-        final Version latestRelease = bot.getLatestRelease(pluginName);
+    private CompareResult compareToRemote(final String platformName, final Version version, final String commitData) {
+        return compareToRemote(FORMAT, platformName, version, commitData);
+    }
+
+    private CompareResult compareToRemote(final String format, final String platformName, final Version version, final String commitData) {
+        final String versionInfo = String.format(format, platformName, version);
+        final Version latestRelease = bot.getLatestRelease(platformName);
         if (version.equals(latestRelease)) {
-            return new CompareResult(pluginName, versionInfo, Color.GREEN, VersionStatus.UPDATED_RELEASE);
+            return new CompareResult(platformName, versionInfo, Color.GREEN, VersionStatus.UPDATED_RELEASE);
         } else if (version.compareTo(latestRelease) < 0) {
-            return new CompareResult(pluginName, "**Your " + pluginName + " is outdated!**\n" + versionInfo, Color.RED, VersionStatus.RADIOACTIVE);
+            return new CompareResult(platformName, "**Your " + platformName + " is outdated!**\n" + versionInfo, Color.RED, VersionStatus.RADIOACTIVE);
         }
 
         final String commit = commitData.split(":")[1];
         String trackedBranch = null;
         int distance = -1;
         for (final String branch : bot.getTrackedBranches()) {
-            distance = GitVersionUtil.fetchDistanceFromGitHub("ViaVersion/" + pluginName, branch, commit);
+            distance = GitVersionUtil.fetchDistanceFromGitHub("ViaVersion/" + platformName, branch, commit);
             trackedBranch = branch;
             if (distance >= 0) {
                 break;
@@ -252,11 +290,11 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         // Commit does not exist / http error
         if (distance == -1) {
-            return new CompareResult(pluginName, "**Error fetching commit data**\n" + versionInfo, Color.GRAY, VersionStatus.UNKNOWN);
+            return new CompareResult(platformName, "**Error fetching commit data**\n" + versionInfo, Color.GRAY, VersionStatus.UNKNOWN);
         } else if (distance == 0) {
-            return new CompareResult(pluginName, "You are even with **" + trackedBranch + "**\n" + versionInfo, Color.CYAN, VersionStatus.UPDATED_CI);
+            return new CompareResult(platformName, "You are even with **" + trackedBranch + "**\n" + versionInfo, Color.CYAN, VersionStatus.UPDATED_CI);
         } else {
-            return new CompareResult(pluginName, "**You are " + distance + " commit(s) behind " + trackedBranch + "**\n" + versionInfo, Color.ORANGE, VersionStatus.OUTDATED);
+            return new CompareResult(platformName, "**You are " + distance + " commit(s) behind " + trackedBranch + "**\n" + versionInfo, Color.ORANGE, VersionStatus.OUTDATED);
         }
     }
 

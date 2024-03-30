@@ -87,12 +87,6 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
     }
 
-    private void sendOutdatedMessage(final Message message, final String platformName, final String platformUrl) {
-        EmbedMessageUtil.sendMessage(message.getChannel(),
-                "Your " + platformName + " is outdated! Please download the latest stable release from " + platformUrl, Color.RED);
-        message.addReaction(Emoji.fromUnicode("U+2623")).queue(); // Radioactive
-    }
-
     private void sendRequest(final Message message, final HttpURLConnection connection) throws IOException {
         connection.setRequestProperty("User-Agent", "ViaEduard/");
         connection.setRequestProperty("Content-Type", "text/plain");
@@ -117,7 +111,9 @@ public final class DumpMessageListener extends ListenerAdapter {
         final JsonObject versionInfo = object.getAsJsonObject("versionInfo");
         final JsonPrimitive implementationVersion = versionInfo.getAsJsonPrimitive("implementationVersion");
         if (implementationVersion == null) {
-            sendOutdatedMessage(message, "ViaVersion", "https://viaversion.com/");
+            EmbedMessageUtil.sendMessage(message.getChannel(),
+                    "Your ViaVersion is outdated! Please download the latest stable release from https://viaversion.com/", Color.RED);
+            message.addReaction(Emoji.fromUnicode("U+2623")).queue(); // Radioactive
             return;
         }
 

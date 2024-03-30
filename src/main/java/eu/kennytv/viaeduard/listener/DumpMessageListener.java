@@ -34,7 +34,7 @@ public final class DumpMessageListener extends ListenerAdapter {
     private static final Object O = new Object();
     private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind", "viarewind-common", "ViaLegacy", "ViaAprilFools"};
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
-    private static final String PLATFORM_FORMAT = "\nPlatform: `%s`\nPlatform version: `%s`";
+    private static final String PLATFORM_FORMAT = "Platform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
     private final ViaEduardBot bot;
 
@@ -193,7 +193,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         final CompareResult compareResult = compareToRemote("ViaVersion", version, implementationVersion.getAsString());
         compareResults.add(compareResult);
         // Append platform data
-        final String s = compareResult.message + String.format(PLATFORM_FORMAT, platformName,
+        final String s = compareResult.message + "\n" + String.format(PLATFORM_FORMAT, platformName,
                 versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
         EmbedMessageUtil.sendMessage(message.getChannel(), s, compareResult.color);
 

@@ -128,21 +128,24 @@ public final class DumpMessageListener extends ListenerAdapter {
         if (platformDump.has("version") && platformDump.has("impl_version")) {
             final String version = platformDump.getAsJsonPrimitive("version").getAsString();
             final String implVersion = platformDump.getAsJsonPrimitive("impl_version").getAsString();
-            final String name = implVersion.contains("ViaFabricPlus") ? "ViaFabricPlus" : "ViaProxy";
+            final boolean mod = implVersion.contains("ViaFabricPlus");
 
-            final CompareResult result = compareToRemote(PLATFORM_FORMAT, name, new Version(version), implVersion);
+            final CompareResult result = compareToRemote(PLATFORM_FORMAT, mod ? "ViaFabricPlus" : "ViaProxy", new Version(version), implVersion);
             EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
-            reactAndSuggestUpdate(message, Collections.singleton(result), "mod");
+            reactAndSuggestUpdate(message, Collections.singleton(result), mod ? "mod" : "proxy");
             return;
-        } else if (platformDump.has("mods")) {
-            // ViaFabricPlus version is too old
+        } else if (platformDump.has("mods")) { // Special handling for older ViaFabricPlus versions
             final JsonArray mods = platformDump.getAsJsonArray("mods");
             for (JsonElement mod : mods) {
                 if (!mod.isJsonObject()) {
                     continue;
                 }
                 if (mod.getAsJsonObject().getAsJsonPrimitive("id").equals("viafabricplus")) {
-                    sendOutdatedMessage(message, "ViaFabricPlus", "https://modrinth.com/mod/viafabricplus");
+                    final String version = mod.getAsJsonObject().getAsJsonPrimitive("version").getAsString();
+
+                    final CompareResult result = compareToRemote(PLATFORM_FORMAT, "ViaFabricPlus", new Version(version), "");
+                    EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
+                    reactAndSuggestUpdate(message, Collections.singleton(result), "mod");
                     return;
                 }
             }

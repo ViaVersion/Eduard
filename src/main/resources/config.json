@@ -7,9 +7,11 @@
     316206679014244363
   ],
   "latest-releases": {
-    "ViaVersion": "4.9.2",
-    "ViaBackwards": "4.9.1",
-    "ViaRewind": "3.0.1"
+    "ViaVersion": "4.9.3",
+    "ViaBackwards": "4.9.2",
+    "ViaRewind": "3.0.6",
+    "ViaFabricPlus": "3.1.0",
+    "ViaProxy": "3.2.0"
   },
   "tracked-branches": ["master", "main", "dev"],
   "help-message": "Please explain your issue and patiently wait for a response :)\nConsider also checking pinned messages for common issues (icon in the top right)",

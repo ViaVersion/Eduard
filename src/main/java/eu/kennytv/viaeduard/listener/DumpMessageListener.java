@@ -117,7 +117,6 @@ public final class DumpMessageListener extends ListenerAdapter {
             return;
         }
 
-        // Check for the evil
         final JsonObject platformDump = object.getAsJsonObject("platformDump");
 
         // Either ViaProxy or ViaFabricPlus
@@ -128,7 +127,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
             final CompareResult result = compareToRemote(PLATFORM_FORMAT, mod ? "ViaFabricPlus" : "ViaProxy", new Version(version), implVersion);
             EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
-            reactAndSuggestUpdate(message, Collections.singleton(result), mod ? "mod" : "proxy");
+            scanCompareResults(message, Collections.singleton(result), mod ? "mod" : "proxy");
             return;
         } else if (platformDump.has("mods")) { // Special handling for older ViaFabricPlus versions
             final JsonArray mods = platformDump.getAsJsonArray("mods");
@@ -141,13 +140,14 @@ public final class DumpMessageListener extends ListenerAdapter {
 
                     final CompareResult result = compareToRemote(PLATFORM_FORMAT, "ViaFabricPlus", new Version(version), "");
                     EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
-                    reactAndSuggestUpdate(message, Collections.singleton(result), "mod");
+                    scanCompareResults(message, Collections.singleton(result), "mod");
                     return;
                 }
             }
         }
 
         final String platformName = versionInfo.getAsJsonPrimitive("platformName").getAsString();
+        // Check for the evil
         if (platformName.equals("Yatopia")) {
             message.addReaction(Emoji.fromUnicode("U+1F4A5")).queue(); // Collision/explosion
             EmbedMessageUtil.sendMessage(message.getChannel(), "Yatopia is known to break quite often and is not supported by us. " +
@@ -226,10 +226,10 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
 
         // Send message to user to update outdated plugins
-        reactAndSuggestUpdate(message, compareResults, "plugin");
+        scanCompareResults(message, compareResults, "plugin");
     }
 
-    private void reactAndSuggestUpdate(final Message message, final Collection<CompareResult> compareResults, final String platformType) {
+    private void scanCompareResults(final Message message, final Collection<CompareResult> compareResults, final String platformType) {
         // Add Radioactive reaction for heavily outdated plugins/mods
         if (compareResults.stream().anyMatch(result -> result.status == VersionStatus.RADIOACTIVE)) {
             message.addReaction(Emoji.fromUnicode("U+2623")).queue();
@@ -261,24 +261,24 @@ public final class DumpMessageListener extends ListenerAdapter {
         return result;
     }
 
-    private CompareResult compareToRemote(final String platformName, final Version version, final String commitData) {
-        return compareToRemote(FORMAT, platformName, version, commitData);
+    private CompareResult compareToRemote(final String name, final Version version, final String commitData) {
+        return compareToRemote(FORMAT, name, version, commitData);
     }
 
-    private CompareResult compareToRemote(final String format, final String platformName, final Version version, final String commitData) {
-        final String versionInfo = String.format(format, platformName, version);
-        final Version latestRelease = bot.getLatestRelease(platformName);
+    private CompareResult compareToRemote(final String format, final String name, final Version version, final String commitData) {
+        final String versionInfo = String.format(format, name, version);
+        final Version latestRelease = bot.getLatestRelease(name);
         if (version.equals(latestRelease)) {
-            return new CompareResult(platformName, versionInfo, Color.GREEN, VersionStatus.UPDATED_RELEASE);
+            return new CompareResult(name, versionInfo, Color.GREEN, VersionStatus.UPDATED_RELEASE);
         } else if (version.compareTo(latestRelease) < 0) {
-            return new CompareResult(platformName, "**Your " + platformName + " is outdated!**\n" + versionInfo, Color.RED, VersionStatus.RADIOACTIVE);
+            return new CompareResult(name, "**Your " + name + " is outdated!**\n" + versionInfo, Color.RED, VersionStatus.RADIOACTIVE);
         }
 
         final String commit = commitData.split(":")[1];
         String trackedBranch = null;
         int distance = -1;
         for (final String branch : bot.getTrackedBranches()) {
-            distance = GitVersionUtil.fetchDistanceFromGitHub("ViaVersion/" + platformName, branch, commit);
+            distance = GitVersionUtil.fetchDistanceFromGitHub("ViaVersion/" + name, branch, commit);
             trackedBranch = branch;
             if (distance >= 0) {
                 break;
@@ -290,11 +290,11 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         // Commit does not exist / http error
         if (distance == -1) {
-            return new CompareResult(platformName, "**Error fetching commit data**\n" + versionInfo, Color.GRAY, VersionStatus.UNKNOWN);
+            return new CompareResult(name, "**Error fetching commit data**\n" + versionInfo, Color.GRAY, VersionStatus.UNKNOWN);
         } else if (distance == 0) {
-            return new CompareResult(platformName, "You are even with **" + trackedBranch + "**\n" + versionInfo, Color.CYAN, VersionStatus.UPDATED_CI);
+            return new CompareResult(name, "You are even with **" + trackedBranch + "**\n" + versionInfo, Color.CYAN, VersionStatus.UPDATED_CI);
         } else {
-            return new CompareResult(platformName, "**You are " + distance + " commit(s) behind " + trackedBranch + "**\n" + versionInfo, Color.ORANGE, VersionStatus.OUTDATED);
+            return new CompareResult(name, "**You are " + distance + " commit(s) behind " + trackedBranch + "**\n" + versionInfo, Color.ORANGE, VersionStatus.OUTDATED);
         }
     }
 

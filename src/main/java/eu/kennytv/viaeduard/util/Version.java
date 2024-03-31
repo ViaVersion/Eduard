@@ -1,9 +1,11 @@
 package eu.kennytv.viaeduard.util;
 
+import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 
 public final class Version implements Comparable<Version> {
 
+    public static final Pattern VIA_RELEASE_PATTERN = Pattern.compile("\\d+\\.\\d+\\.\\d+");
     private final int[] parts;
     private final String version;
     private final String tag;

@@ -1,22 +1,37 @@
 package eu.kennytv.viaeduard;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import eu.kennytv.viaeduard.command.MemoryCommand;
 import eu.kennytv.viaeduard.command.MessageCommand;
 import eu.kennytv.viaeduard.command.ScanDumpsCommand;
+import eu.kennytv.viaeduard.command.SetVersionCommand;
 import eu.kennytv.viaeduard.command.base.CommandHandler;
-import eu.kennytv.viaeduard.listener.*;
+import eu.kennytv.viaeduard.listener.DumpMessageListener;
+import eu.kennytv.viaeduard.listener.ErrorHelper;
+import eu.kennytv.viaeduard.listener.FileMessageListener;
+import eu.kennytv.viaeduard.listener.HelpMessageListener;
+import eu.kennytv.viaeduard.listener.SlashCommandListener;
+import eu.kennytv.viaeduard.listener.SupportMessageListener;
 import eu.kennytv.viaeduard.util.SupportMessage;
 import eu.kennytv.viaeduard.util.Version;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -28,9 +43,10 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ViaEduardBot {
 
-    public static final Gson GSON = new GsonBuilder().create();
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final Map<String, Version> latestReleases = new HashMap<>();
     private final Map<String, CommandHandler> commands = new HashMap<>();
+    private final List<SupportMessage> supportMessages = new ArrayList<>();
     private final JDA jda;
     private final Guild guild;
     private long botChannelId;
@@ -42,7 +58,6 @@ public final class ViaEduardBot {
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
-    private List<SupportMessage> supportMessages;
 
     public static void main(final String[] args) {
         new ViaEduardBot();
@@ -52,6 +67,7 @@ public final class ViaEduardBot {
         final JsonObject object;
         try {
             object = loadConfig();
+            loadMessages();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
@@ -86,6 +102,15 @@ public final class ViaEduardBot {
                 .setGuildOnly(true), new ScanDumpsCommand(this));
         registerCommand(guild.upsertCommand("memory", "Display used and remaining memory of this bot instance")
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MemoryCommand());
+        registerCommand(guild.upsertCommand("setversion", "Set the release version for a platform")
+                .addOption(OptionType.STRING, "platform", "Via software name", true)
+                .addOption(OptionType.STRING, "version", "Release version to set", true)
+                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
+                .setGuildOnly(true), new SetVersionCommand(this));
+        //registerCommand(guild.upsertCommand("sethelpmessage", "Set the contents of a help message")
+        //        .addOption(OptionType.NUMBER, "message", "Message ID to get the contents of", true)
+        //        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
+        //        .setGuildOnly(true), new SetHelpMessageCommand(this));
     }
 
     private void registerCommand(final CommandCreateAction action, final CommandHandler command) {
@@ -94,8 +119,7 @@ public final class ViaEduardBot {
     }
 
     private JsonObject loadConfig() throws IOException {
-        final String s = Files.readString(new File("config.json").toPath());
-        final JsonObject object = GSON.fromJson(s, JsonObject.class);
+        final JsonObject object = loadFile("config.json");
         for (final Map.Entry<String, JsonElement> entry : object.getAsJsonObject("latest-releases").entrySet()) {
             latestReleases.put(entry.getKey(), new Version(entry.getValue().getAsString()));
         }
@@ -116,10 +140,15 @@ public final class ViaEduardBot {
         nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
                 .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
-        supportMessages = new ArrayList<>();
-        for (JsonElement element : object.getAsJsonArray("support-messages")) {
+        return object;
+    }
+
+    private void loadMessages() throws IOException {
+        final JsonObject object = loadFile("messages.json");
+        final JsonArray array = object.getAsJsonArray("messages");
+        for (final JsonElement element : array) {
             final JsonObject message = element.getAsJsonObject();
-            Set<String> commands;
+            final Set<String> commands;
             if (message.has("commands")) {
                 commands = message.getAsJsonArray("commands").asList().stream().map(JsonElement::getAsString).collect(Collectors.toSet());
             } else if (message.has("command")) {
@@ -127,10 +156,11 @@ public final class ViaEduardBot {
             } else {
                 throw new IllegalStateException("Invalid support message, missing command");
             }
+
             final List<SupportMessage.Message> messages = new ArrayList<>();
             if (message.has("messages")) {
                 final JsonObject messagesElement = message.getAsJsonObject("messages");
-                for (Map.Entry<String, JsonElement> entry : messagesElement.entrySet()) {
+                for (final Map.Entry<String, JsonElement> entry : messagesElement.entrySet()) {
                     final SupportMessage.Channel channel = SupportMessage.Channel.byName(entry.getKey());
                     if (channel == null) {
                         throw new IllegalStateException("Invalid support message, unknown channel: " + entry.getKey());
@@ -145,7 +175,10 @@ public final class ViaEduardBot {
 
             supportMessages.add(new SupportMessage(commands, messages));
         }
-        return object;
+    }
+
+    private JsonObject loadFile(final String name) throws IOException {
+        return GSON.fromJson(Files.newBufferedReader(Path.of(name)), JsonObject.class);
     }
 
     public void sendSupportChannelRedirect(final MessageChannel channel, final User user) {
@@ -206,5 +239,11 @@ public final class ViaEduardBot {
 
     public List<SupportMessage> getSupportMessages() {
         return supportMessages;
+    }
+
+    public void setLatestRelease(final String platform, final String version) throws IOException {
+        final JsonObject object = loadFile("config.json");
+        object.getAsJsonObject("latest-releases").addProperty(platform, version);
+        Files.writeString(Path.of("config.json"), GSON.toJson(object));
     }
 }

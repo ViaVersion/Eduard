@@ -21,7 +21,7 @@ public class SupportMessage {
     }
 
     public void send(final MessageChannelUnion messageChannel, final Channel channel) {
-        for (SupportMessage.Message msg : getMessages()) {
+        for (final SupportMessage.Message msg : messages) {
             if (msg.getChannel() == null || channel == msg.getChannel()) {
                 messageChannel.sendMessage(msg.getMessage()).queue();
                 return;
@@ -72,7 +72,7 @@ public class SupportMessage {
         }
 
         public static Channel byName(final String name) {
-            for (Channel channel : values()) {
+            for (final Channel channel : values()) {
                 if (channel.getName().equals(name)) {
                     return channel;
                 }

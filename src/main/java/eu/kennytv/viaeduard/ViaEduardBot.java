@@ -1,26 +1,19 @@
 package eu.kennytv.viaeduard;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import eu.kennytv.viaeduard.command.MemoryCommand;
 import eu.kennytv.viaeduard.command.MessageCommand;
 import eu.kennytv.viaeduard.command.ScanDumpsCommand;
 import eu.kennytv.viaeduard.command.base.CommandHandler;
-import eu.kennytv.viaeduard.listener.DumpMessageListener;
-import eu.kennytv.viaeduard.listener.ErrorHelper;
-import eu.kennytv.viaeduard.listener.FileMessageListener;
-import eu.kennytv.viaeduard.listener.HelpMessageListener;
-import eu.kennytv.viaeduard.listener.SlashCommandListener;
+import eu.kennytv.viaeduard.listener.*;
+import eu.kennytv.viaeduard.util.SupportMessage;
 import eu.kennytv.viaeduard.util.Version;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -49,6 +42,7 @@ public final class ViaEduardBot {
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
+    private List<SupportMessage> supportMessages;
 
     public static void main(final String[] args) {
         new ViaEduardBot();
@@ -71,6 +65,7 @@ public final class ViaEduardBot {
                 .addEventListeners(new DumpMessageListener(this))
                 .addEventListeners(new HelpMessageListener(this))
                 .addEventListeners(new FileMessageListener(this))
+                .addEventListeners(new SupportMessageListener(this))
                 .addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")));
 
         try {
@@ -121,6 +116,35 @@ public final class ViaEduardBot {
         nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
                 .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
+        supportMessages = new ArrayList<>();
+        for (JsonElement element : object.getAsJsonArray("support-messages")) {
+            final JsonObject message = element.getAsJsonObject();
+            Set<String> commands;
+            if (message.has("commands")) {
+                commands = message.getAsJsonArray("commands").asList().stream().map(JsonElement::getAsString).collect(Collectors.toSet());
+            } else if (message.has("command")) {
+                commands = Collections.singleton(message.getAsJsonPrimitive("command").getAsString());
+            } else {
+                throw new IllegalStateException("Invalid support message, missing command");
+            }
+            final List<SupportMessage.Message> messages = new ArrayList<>();
+            if (message.has("messages")) {
+                final JsonObject messagesElement = message.getAsJsonObject("messages");
+                for (Map.Entry<String, JsonElement> entry : messagesElement.entrySet()) {
+                    final SupportMessage.Channel channel = SupportMessage.Channel.byName(entry.getKey());
+                    if (channel == null) {
+                        throw new IllegalStateException("Invalid support message, unknown channel: " + entry.getKey());
+                    }
+                    messages.add(new SupportMessage.Message(channel, entry.getValue().getAsString()));
+                }
+            } else if (message.has("message")) {
+                messages.add(new SupportMessage.Message(null, message.getAsJsonPrimitive("message").getAsString()));
+            } else {
+                throw new IllegalStateException("Invalid support message, missing content");
+            }
+
+            supportMessages.add(new SupportMessage(commands, messages));
+        }
         return object;
     }
 
@@ -178,5 +202,9 @@ public final class ViaEduardBot {
 
     public Set<Long> getNonSupportChannelIds() {
         return nonSupportChannelIds;
+    }
+
+    public List<SupportMessage> getSupportMessages() {
+        return supportMessages;
     }
 }

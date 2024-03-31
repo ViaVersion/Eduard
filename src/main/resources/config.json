@@ -37,13 +37,131 @@
       "match-text": ["Source 0: com.viaversion.viaversion.protocols.base.BaseProtocol1_7$$Lambda$3268/0x000000080154a200"],
       "error-message": "This error is most likely caused by your proxy software being out of date, or incompatibility with another plugin like limbo, or custom client.",
       "confidence": 80,
-      "from": ["text", "file","image"]
+      "from": ["text", "file", "image"]
     },
     "BlockedProtocols": {
       "match-text": ["You are using an unsupported Minecraft version!"],
       "error-message": "'You are using an unsupported Minecraft version!' is the default message for the blocked-versions/protocols setting. Please check your ViaVersion config and make sure you have the correct version set.",
       "confidence": 80,
-      "from": ["text", "file","image"]
+      "from": ["text", "file", "image"]
     }
-  }
+  },
+  "support-messages": [
+    {
+      "commands": ["download", "dl"],
+      "message": "Please download the latest ViaVersion plugins from the <#698284788074938388> channel. Remember to delete your old `.jar` files before downloading the new ones."
+    },
+    {
+      "commands": ["bungeecord", "bungee", "proxy", "velocity"],
+      "message": "Please update your proxy to the latest version to support 1.8 - latest release clients\n**BungeeCord** - https://ci.md-5.net/job/BungeeCord\n**Velocity** - https://papermc.io/downloads#Velocity"
+    },
+    {
+      "command": "packets",
+      "message": "If you were kicked for \"You are sending too many packets!\", change `max-pps` in the ViaVersion `config.yml` to either a higher number or -1 to disable it. Use `/viaversion pps` in-game to view how many packets players are sending."
+    },
+    {
+      "command": "tab",
+      "message": "If your players are getting kicked for spam, it's due to 1.13+'s tab-complete executing too fast.\n\nWays to solve this:\n- Update ViaVersion from <#698284788074938388> and edit `1_13-tab-complete-delay: 5` in the config. 5 is suggested to avoid kicking.\n- Disable tab-complete for 1.13+ using `disable-1_13-auto-complete: true` in the config.\n- If you use Paper 1.17.1+ then you can change the spam limit in paper.yml *(or in config/paper-global.yml if using 1.19+)* instead."
+    },
+    {
+      "commands": ["connections", "blockconnections"],
+      "message": "If you want ViaVersion to calculate how to connect blocks for 1.13+ make sure you set `serverside-blockconnections: true` in the ViaVersion config. This was previously disabled by default as it uses slightly more CPU per player."
+    },
+    {
+      "commands": ["blockprotocols", "blockversions", "block"],
+      "message": "You can use https://via.krusic22.com/ to generate the list for `block-protocols` in the ViaVersion config, this will allow you to allow / deny specific versions.\nYou can also use `block-versions` to specify blocked versions by using its minecraft name (\"1.17\") and operands like `< >`. For example `\"<1.17\"` will only allow 1.17.x and above to join.\n*(You can also use https://viaversion.com/setup to generate the list)*"
+    },
+    {
+      "commands": ["where", "stack"],
+      "messages": {
+        "plugin": "Please only install Via* plugins on either Bungee/Velocity **OR** backend servers *(e.g. Spigot / Paper / Sponge)*. We recommend **backend servers** because it will give ViaVersion more information and a better experience.",
+        "mod": "ViaFabricPlus can be only installed on the client side, ViaFabric can be installed on both client and server side.",
+        "proxy": "ViaProxy is a standalone software and doesn't have to be installed on a server or as a mod."
+      }
+    },
+    {
+      "command": "more",
+      "messages": {
+        "plugin": "Please provide more information:\n- Enable `debug=true` in server.properties and recreate the issue.\n- Provide `/viaversion dump` link, this will allow us to work out incompatibilities.\n- Ensure you've said the **client-version** the issue happens with.",
+        "mod": "Please provide more information:\n- Provide `/viafabricplus dump` link, this will allow us to work out incompatibilities.\n- Provide your `latest.log` file.\n- Ensure you've said the **target-version** the issue happens with.",
+        "proxy": "Please provide more information:\n- Go to `Advanced` and run `Create ViaVersion dump` and provide us the link.\n- Go to `Advanced` and run `Upload latest log file` and provide us the link.\n- Ensure you've said the **Server Version** the issue happens with."
+      }
+    },
+    {
+      "commands": ["viadump", "dump"],
+      "messages": {
+        "plugin": "Please run `/viaversion dump` in-game or in your console and copy the link into this channel, it gives us useful information about your server.",
+        "mod": "Please run `/viafabricplus dump` in-game and copy the link into this channel, it gives us useful information about your client.",
+        "proxy": "Please go to `Advanced` and run `Create ViaVersion dump` and provide us the link."
+      }
+    },
+    {
+      "commands": ["error", "spam", "suppress"],
+      "messages": {
+        "plugin": "To fix console spam, use `suppress-conversion-warnings: true` and `suppress-metadata-errors: true` in the ViaVersion `config.yml`. The errors will still happen but you won't be spammed with them and the issues will be ignored.",
+        "mod": "To fix log spam, use `suppress-conversion-warnings: true` and `suppress-metadata-errors: true` in the viaversion.yml (located in `config/viafabricplus/ViaLoader`). The errors will still happen but you won't be spammed with them and the issues will be ignored.",
+        "proxy": "To fix log spam, use `suppress-conversion-warnings: true` and `suppress-metadata-errors: true` in the viaversion.yml (located in `ViaLoader`). The errors will still happen but you won't be spammed with them and the issues will be ignored."
+      }
+    },
+    {
+      "command": "paste",
+      "message": "Please use https://mclo.gs/ for pasting long text / code / server/client logs."
+    },
+    {
+      "commands": ["plugins", "pl", "setup"],
+      "message": "If you want newer versions, e.g. 1.15.2 on 1.15 server, download just ViaVersion.\nIf you want older versions, e.g. 1.14.4 on 1.15 server, download ViaVersion and ViaBackwards.\nIf you want 1.7 / 1.8 versions, download ViaVersion, ViaBackwards and ViaRewind\n\nStill confused? Try this tool - https://viaversion.com/setup"
+    },
+    {
+      "command": "api",
+      "messages": {
+        "plugin": "You can find documentation on how to use our API over at https://docs.viaversion.com/display/VIAVERSION/Basic+API+usage",
+        "mod": "You can find documentation and contributing guidelines for ViaFabricPlus over at https://github.com/ViaVersion/ViaFabricPlus/tree/main/docs",
+        "proxy": "You can find documentation on how to create ViaProxy plugins over at https://github.com/ViaVersion/ViaFabricPlus/tree/main/docs"
+      }
+    },
+    {
+      "command": "stack",
+      "message": "Please only install Via* plugins on either Bungee/Velocity **OR** backend servers *(e.g. Spigot / Paper / Sponge)*. We recommend **backend servers** because it will give ViaVersion more information and a better experience."
+    },
+    {
+      "command": "proxy",
+      "message": "Please update your proxy to the latest version to support 1.8 - latest release clients.\n**BungeeCord** - https://ci.md-5.net/job/BungeeCord\n**Velocity** - https://papermc.io/downloads#Velocity"
+    },
+    {
+      "commands": ["mapping", "mappings"],
+      "message": "This is an example of how the mapping works in Via:\nhttps://raw.githubusercontent.com/Jo0001/ViaRemapping/master/1.20-1.19.png"
+    },
+    {
+      "commands": ["platforms", "platform"],
+      "message": "Here are the officially supported platforms:\nPaper and Spigot as a **plugin**\nSponge as a **sponge plugin**\nBungeecord as a **plugin** *(Run the latest version of the proxy!)*\nVelocity as a **plugin** *(Run the latest version of the proxy!)*\nFabric 1.8/1.14+ as a mod. Requires **ViaFabric (Plus)** and **Fabric API** for your game version.\nStandalone as **proxy** with ViaaaS & ViaProxy.\n\nFor a overview checkout - https://viaversion.com/suite\n\n\n*Side note: As a network owner, running Via on the backend servers is recommended even if you have a ViaVersion compatible proxy.*"
+    },
+    {
+      "command": "tps",
+      "message": "**ViaVersion is causing TPS lag in timings?**\n\nViaVersion for versions 1.9 and above on 1.8 has to simulate player ticking for them to eat, draw bows, etc. This means our plugin looks like it's causing lag but it's actually calling Minecraft server methods. You can turn off `nms-player-ticking` in the ViaVersion `config.yml` to use an alternate method that won't touch timings but may cause issues with anti-cheat."
+    },
+    {
+      "command": "cooldown",
+      "message": "Specify how 1.8.x clients should see the cooldown indicator\nIn the Via**Rewind** `config.yml` set `cooldown-indicator: ` to\n `TITLE`,`ACTION_BAR`,`BOSS_BAR` or `DISABLED`\n*Note: This will only hide the cooldown, not disable it!*"
+    },
+    {
+      "command": "api-update",
+      "message": "Information about how to use the Via API in the latest release can be found here: https://gist.github.com/KennyTV/3778685985ddc45bd99e003191ff02eb"
+    },
+    {
+      "command": "error",
+      "message": "**That issue is not from Via, it's from the plugin shown in the stack trace. Try the latest version of that plugin or contact the author of it and tell them to update the Via API usage.**"
+    },
+    {
+      "command": "btlp",
+      "message": "There is a current issue with BungeeTabListPlus and the latest Minecraft update, we suggest following their discord for updates."
+    },
+    {
+      "command": "reload",
+      "message": "**Do not use the `/reload` command**. It will cause issues with your server and its plugins. For more information, see https://madelinemiller.dev/blog/problem-with-reload/\n*Note: You can safely use `/minecraft:reload` to reload datapacks.*"
+    },
+    {
+      "command": "height",
+      "message": "Every player on 1.7.x - 1.16.5 can still play on a 1.18+ server but **the new world height is not supported** *(players are stuck below y=0 & only see void)*\n\n*To avoid/revert this, use a datapack or downgrade back to 1.17.1 or only allow 1.17+ players, see https://gist.github.com/Jo0001/4fe96cf5a78c8a00560ea985f3b9eb22 for more information.*"
+    }
+  ]
 }

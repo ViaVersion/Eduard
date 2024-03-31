@@ -1,11 +1,11 @@
-package eu.kennytv.viaeduard.command;
+package com.viaversion.eduard.command;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import eu.kennytv.viaeduard.ViaEduardBot;
-import eu.kennytv.viaeduard.command.base.CommandHandler;
-import eu.kennytv.viaeduard.util.EmbedMessageUtil;
+import com.viaversion.eduard.ViaEduardBot;
+import com.viaversion.eduard.command.base.CommandHandler;
+import com.viaversion.eduard.util.EmbedMessageUtil;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -110,10 +110,10 @@ public final class ScanDumpsCommand implements CommandHandler {
         EmbedMessageUtil.sendMessage(textChannel, mcMessageBuilder.toString(), Color.GREEN);
 
         final String finalMessage = "**Summary**" +
-                "\nJava >=16: " + modernJava +
-                "\nJava <16: " + oldJava +
-                "\n\nMC >=1.16.4: " + modernMc +
-                "\nMC <1.16.4: " + oldMc;
+            "\nJava >=16: " + modernJava +
+            "\nJava <16: " + oldJava +
+            "\n\nMC >=1.16.4: " + modernMc +
+            "\nMC <1.16.4: " + oldMc;
         EmbedMessageUtil.sendMessage(textChannel, finalMessage, Color.ORANGE);
     }
 

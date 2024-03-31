@@ -1,8 +1,8 @@
-package eu.kennytv.viaeduard.listener;
+package com.viaversion.eduard.listener;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import eu.kennytv.viaeduard.ViaEduardBot;
+import com.viaversion.eduard.ViaEduardBot;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.Permission;

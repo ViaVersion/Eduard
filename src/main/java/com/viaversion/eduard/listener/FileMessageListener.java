@@ -1,6 +1,6 @@
-package eu.kennytv.viaeduard.listener;
+package com.viaversion.eduard.listener;
 
-import eu.kennytv.viaeduard.ViaEduardBot;
+import com.viaversion.eduard.ViaEduardBot;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;

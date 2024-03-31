@@ -1,4 +1,4 @@
-package eu.kennytv.viaeduard.util;
+package com.viaversion.eduard.util;
 
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;

@@ -19,12 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package eu.kennytv.viaeduard.listener;
+package com.viaversion.eduard.listener;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import eu.kennytv.viaeduard.ViaEduardBot;
+import com.viaversion.eduard.ViaEduardBot;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -73,11 +73,11 @@ public class ErrorHelper extends ListenerAdapter {
 
             final JsonObject errorObject = entry.getValue().getAsJsonObject();
             final ErrorEntry errorEntry = new ErrorEntry(
-                    entry.getKey(),
-                    errorObject.getAsJsonArray("match-text").asList().stream().map(JsonElement::getAsString).collect(Collectors.toList()),
-                    errorObject.getAsJsonPrimitive("error-message").getAsString(),
-                    errorObject.getAsJsonPrimitive("confidence").getAsInt(),
-                    errorObject.getAsJsonArray("from").asList().stream().map(element -> ErrorContainer.valueOf(element.getAsString().toUpperCase(Locale.ROOT))).collect(Collectors.toList())
+                entry.getKey(),
+                errorObject.getAsJsonArray("match-text").asList().stream().map(JsonElement::getAsString).collect(Collectors.toList()),
+                errorObject.getAsJsonPrimitive("error-message").getAsString(),
+                errorObject.getAsJsonPrimitive("confidence").getAsInt(),
+                errorObject.getAsJsonArray("from").asList().stream().map(element -> ErrorContainer.valueOf(element.getAsString().toUpperCase(Locale.ROOT))).collect(Collectors.toList())
             );
             errorMessages.add(errorEntry);
         }
@@ -182,8 +182,8 @@ public class ErrorHelper extends ListenerAdapter {
 
             if (sendDebug) {
                 final String debugMessage = "Triggered " + entry.name() + " on " + message.getJumpUrl() + " (required confidence: " + entry.requiredConfidence() + ")"
-                        + "\nPartial confidence: " + result.heighestPartialRatio()
-                        + "\nWeighted confidence: " + result.heighestWeightedRatio();
+                    + "\nPartial confidence: " + result.heighestPartialRatio()
+                    + "\nWeighted confidence: " + result.heighestWeightedRatio();
                 bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId()).sendMessage(debugMessage).queue();
             }
         }
@@ -191,14 +191,14 @@ public class ErrorHelper extends ListenerAdapter {
 
     private static String cleanString(final String string) {
         return string.toLowerCase(Locale.ROOT)
-                .replace("\n", "")
-                .replace("\r", "")
-                .replace(" ", "")
-                .replace("\t", "")
-                .replace("’", "'")
-                .replace("‘", "'")
-                .replace("“", "\"")
-                .replace("”", "\"");
+            .replace("\n", "")
+            .replace("\r", "")
+            .replace(" ", "")
+            .replace("\t", "")
+            .replace("’", "'")
+            .replace("‘", "'")
+            .replace("“", "\"")
+            .replace("”", "\"");
     }
 
     public enum ErrorContainer {

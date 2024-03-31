@@ -1,6 +1,6 @@
-package eu.kennytv.viaeduard.command;
+package com.viaversion.eduard.command;
 
-import eu.kennytv.viaeduard.command.base.CommandHandler;
+import com.viaversion.eduard.command.base.CommandHandler;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

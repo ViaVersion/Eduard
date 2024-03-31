@@ -1,4 +1,4 @@
-package eu.kennytv.viaeduard.listener;
+package com.viaversion.eduard.listener;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -6,10 +6,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import eu.kennytv.viaeduard.ViaEduardBot;
-import eu.kennytv.viaeduard.util.EmbedMessageUtil;
-import eu.kennytv.viaeduard.util.GitVersionUtil;
-import eu.kennytv.viaeduard.util.Version;
+import com.viaversion.eduard.ViaEduardBot;
+import com.viaversion.eduard.util.EmbedMessageUtil;
+import com.viaversion.eduard.util.GitVersionUtil;
+import com.viaversion.eduard.util.Version;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -112,7 +112,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         final JsonPrimitive implementationVersion = versionInfo.getAsJsonPrimitive("implementationVersion");
         if (implementationVersion == null) {
             EmbedMessageUtil.sendMessage(message.getChannel(),
-                    "Your ViaVersion is outdated! Please download the latest stable release from https://viaversion.com/", Color.RED);
+                "Your ViaVersion is outdated! Please download the latest stable release from https://viaversion.com/", Color.RED);
             message.addReaction(Emoji.fromUnicode("U+2623")).queue(); // Radioactive
             return;
         }
@@ -151,7 +151,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         if (platformName.equals("Yatopia")) {
             message.addReaction(Emoji.fromUnicode("U+1F4A5")).queue(); // Collision/explosion
             EmbedMessageUtil.sendMessage(message.getChannel(), "Yatopia is known to break quite often and is not supported by us. " +
-                    "Consider using Paper/Purpur for the best performance without a loss in stability.", Color.RED);
+                "Consider using Paper/Purpur for the best performance without a loss in stability.", Color.RED);
         }
 
         final JsonArray plugins = platformDump.getAsJsonArray("plugins");
@@ -190,7 +190,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         compareResults.add(compareResult);
         // Append platform data
         final String s = compareResult.message + "\n" + String.format(PLATFORM_FORMAT, platformName,
-                versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
+            versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
         EmbedMessageUtil.sendMessage(message.getChannel(), s, compareResult.color);
 
         // Check for existing subplatforms
@@ -218,8 +218,8 @@ public final class DumpMessageListener extends ListenerAdapter {
             if (serverProtocolObject.isNumber()) {
                 final int serverProtocol = serverProtocolObject.getAsInt();
                 if (serverProtocol > 107 // serverProtocol > 1.9
-                        && compareResults.stream().anyMatch(r -> r.pluginName.equals("ViaRewind"))
-                        && compareResults.stream().noneMatch(r -> r.pluginName.equals("ViaBackwards"))) {
+                    && compareResults.stream().anyMatch(r -> r.pluginName.equals("ViaRewind"))
+                    && compareResults.stream().noneMatch(r -> r.pluginName.equals("ViaBackwards"))) {
                     EmbedMessageUtil.sendMessage(message.getChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#" + bot.getLinksChannelId() + "> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
                 }
             }
@@ -238,8 +238,8 @@ public final class DumpMessageListener extends ListenerAdapter {
         // Send a message to tell the user to update to latest build from CI (#links)
         if (compareResults.stream().anyMatch(result -> result.status == VersionStatus.RADIOACTIVE || result.status == VersionStatus.OUTDATED)) {
             final List<String> pluginsToUpdate = compareResults.stream().filter(result -> result.status != VersionStatus.UPDATED_CI && result.status != VersionStatus.UNKNOWN)
-                    .map(result -> result.pluginName)
-                    .collect(Collectors.toList());
+                .map(result -> result.pluginName)
+                .collect(Collectors.toList());
             final StringBuilder updateMessage = new StringBuilder();
             if (pluginsToUpdate.size() > 1) {
                 updateMessage.append(platformType).append("s ").append(String.join(", ", pluginsToUpdate.subList(0, pluginsToUpdate.size() - 1)));

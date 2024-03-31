@@ -1,4 +1,4 @@
-package eu.kennytv.viaeduard.command.base;
+package com.viaversion.eduard.command.base;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 

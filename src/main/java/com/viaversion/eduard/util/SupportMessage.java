@@ -1,11 +1,10 @@
-package eu.kennytv.viaeduard.util;
+package com.viaversion.eduard.util;
 
 import com.google.common.base.Preconditions;
-import eu.kennytv.viaeduard.ViaEduardBot;
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
-
+import com.viaversion.eduard.ViaEduardBot;
 import java.util.List;
 import java.util.Set;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 public class SupportMessage {
 

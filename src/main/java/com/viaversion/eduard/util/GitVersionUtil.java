@@ -1,4 +1,4 @@
-package eu.kennytv.viaeduard.util;
+package com.viaversion.eduard.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;

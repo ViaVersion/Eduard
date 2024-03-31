@@ -1,23 +1,23 @@
-package eu.kennytv.viaeduard;
+package com.viaversion.eduard;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import eu.kennytv.viaeduard.command.MemoryCommand;
-import eu.kennytv.viaeduard.command.MessageCommand;
-import eu.kennytv.viaeduard.command.ScanDumpsCommand;
-import eu.kennytv.viaeduard.command.SetVersionCommand;
-import eu.kennytv.viaeduard.command.base.CommandHandler;
-import eu.kennytv.viaeduard.listener.DumpMessageListener;
-import eu.kennytv.viaeduard.listener.ErrorHelper;
-import eu.kennytv.viaeduard.listener.FileMessageListener;
-import eu.kennytv.viaeduard.listener.HelpMessageListener;
-import eu.kennytv.viaeduard.listener.SlashCommandListener;
-import eu.kennytv.viaeduard.listener.SupportMessageListener;
-import eu.kennytv.viaeduard.util.SupportMessage;
-import eu.kennytv.viaeduard.util.Version;
+import com.viaversion.eduard.command.MemoryCommand;
+import com.viaversion.eduard.command.MessageCommand;
+import com.viaversion.eduard.command.ScanDumpsCommand;
+import com.viaversion.eduard.command.SetVersionCommand;
+import com.viaversion.eduard.command.base.CommandHandler;
+import com.viaversion.eduard.listener.DumpMessageListener;
+import com.viaversion.eduard.listener.ErrorHelper;
+import com.viaversion.eduard.listener.FileMessageListener;
+import com.viaversion.eduard.listener.HelpMessageListener;
+import com.viaversion.eduard.listener.SlashCommandListener;
+import com.viaversion.eduard.listener.SupportMessageListener;
+import com.viaversion.eduard.util.SupportMessage;
+import com.viaversion.eduard.util.Version;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,11 +78,11 @@ public final class ViaEduardBot {
         builder.setStatus(OnlineStatus.ONLINE);
 
         builder.addEventListeners(new SlashCommandListener(this))
-                .addEventListeners(new DumpMessageListener(this))
-                .addEventListeners(new HelpMessageListener(this))
-                .addEventListeners(new FileMessageListener(this))
-                .addEventListeners(new SupportMessageListener(this))
-                .addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")));
+            .addEventListeners(new DumpMessageListener(this))
+            .addEventListeners(new HelpMessageListener(this))
+            .addEventListeners(new FileMessageListener(this))
+            .addEventListeners(new SupportMessageListener(this))
+            .addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")));
 
         try {
             jda = builder.build().awaitReady();
@@ -93,20 +93,20 @@ public final class ViaEduardBot {
         guild = jda.getGuildById(316206679014244363L);
 
         registerCommand(guild.upsertCommand("message", "Send a message into a channel")
-                .addOption(OptionType.CHANNEL, "channel", "Channel to send the message in", true)
-                .addOption(OptionType.STRING, "message", "Message to send", true)
-                .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MessageCommand());
+            .addOption(OptionType.CHANNEL, "channel", "Channel to send the message in", true)
+            .addOption(OptionType.STRING, "message", "Message to send", true)
+            .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MessageCommand());
         registerCommand(guild.upsertCommand("scandumps", "Analyze sent dumps")
-                .addOption(OptionType.INTEGER, "days", "Days to go back", true)
-                .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
-                .setGuildOnly(true), new ScanDumpsCommand(this));
+            .addOption(OptionType.INTEGER, "days", "Days to go back", true)
+            .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
+            .setGuildOnly(true), new ScanDumpsCommand(this));
         registerCommand(guild.upsertCommand("memory", "Display used and remaining memory of this bot instance")
-                .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MemoryCommand());
+            .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MemoryCommand());
         registerCommand(guild.upsertCommand("setversion", "Set the release version for a platform")
-                .addOption(OptionType.STRING, "platform", "Via software name", true)
-                .addOption(OptionType.STRING, "version", "Release version to set", true)
-                .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
-                .setGuildOnly(true), new SetVersionCommand(this));
+            .addOption(OptionType.STRING, "platform", "Via software name", true)
+            .addOption(OptionType.STRING, "version", "Release version to set", true)
+            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
+            .setGuildOnly(true), new SetVersionCommand(this));
         //registerCommand(guild.upsertCommand("sethelpmessage", "Set the contents of a help message")
         //        .addOption(OptionType.NUMBER, "message", "Message ID to get the contents of", true)
         //        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
@@ -138,7 +138,7 @@ public final class ViaEduardBot {
         proxySupportChannelId = object.getAsJsonPrimitive("proxy-support-channel").getAsLong();
         linksChannelId = object.getAsJsonPrimitive("links-channel").getAsLong();
         nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
-                .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
+            .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
         return object;
     }

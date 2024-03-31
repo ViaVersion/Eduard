@@ -1,7 +1,7 @@
-package eu.kennytv.viaeduard.listener;
+package com.viaversion.eduard.listener;
 
-import eu.kennytv.viaeduard.ViaEduardBot;
-import eu.kennytv.viaeduard.command.base.CommandHandler;
+import com.viaversion.eduard.ViaEduardBot;
+import com.viaversion.eduard.command.base.CommandHandler;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;

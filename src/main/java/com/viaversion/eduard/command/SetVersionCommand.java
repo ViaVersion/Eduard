@@ -1,8 +1,8 @@
-package eu.kennytv.viaeduard.command;
+package com.viaversion.eduard.command;
 
-import eu.kennytv.viaeduard.ViaEduardBot;
-import eu.kennytv.viaeduard.command.base.CommandHandler;
-import eu.kennytv.viaeduard.util.Version;
+import com.viaversion.eduard.ViaEduardBot;
+import com.viaversion.eduard.command.base.CommandHandler;
+import com.viaversion.eduard.util.Version;
 import java.io.IOException;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 

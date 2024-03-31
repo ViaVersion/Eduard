@@ -127,10 +127,9 @@ public final class ViaEduardBot {
             } else {
                 continue; // bad command
             }
-            List<SupportMessage.Message> messages = new ArrayList<>();
+            final List<SupportMessage.Message> messages = new ArrayList<>();
             if (message.has("messages")) {
                 final JsonObject messagesElement = message.getAsJsonObject("messages");
-                int i = 0;
                 for (Map.Entry<String, JsonElement> entry : messagesElement.entrySet()) {
                     final SupportMessage.Channel channel = SupportMessage.Channel.byName(entry.getKey());
                     if (channel == null) {

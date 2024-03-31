@@ -57,7 +57,7 @@
     },
     {
       "command": "packets",
-      "message": "If you were kicked for \"You are sending too many packets!\", Change `max-pps` in the ViaVersion `config.yml` to either a higher number or -1 to disable it. Use `/viaversion pps` in-game to view how many packets players are sending."
+      "message": "If you were kicked for \"You are sending too many packets!\", change `max-pps` in the ViaVersion `config.yml` to either a higher number or -1 to disable it. Use `/viaversion pps` in-game to view how many packets players are sending."
     },
     {
       "command": "tab",
@@ -69,7 +69,7 @@
     },
     {
       "commands": ["blockprotocols", "blockversions", "block"],
-      "message": "You can use https://via.krusic22.com/ to generate the list for `block-protocols` in the ViaVersion config, this will allow you to allow / deny specific versions.\nYou can also use `block-versions` to specify blocked versions by using it's Minecraft name (\"1.17\") and operands like `< >`. For example `\"<1.17\"` will only allow 1.17.x and above to join.\n*(You can also use https://viaversion.com/setup to generate the list)*"
+      "message": "You can use https://via.krusic22.com/ to generate the list for `block-protocols` in the ViaVersion config, this will allow you to allow / deny specific versions.\nYou can also use `block-versions` to specify blocked versions by using its minecraft name (\"1.17\") and operands like `< >`. For example `\"<1.17\"` will only allow 1.17.x and above to join.\n*(You can also use https://viaversion.com/setup to generate the list)*"
     },
     {
       "commands": ["where", "stack"],
@@ -153,15 +153,15 @@
     },
     {
       "command": "btlp",
-      "message": "There is a current issue with BungeeTabListPlus and the latest Minecraft update, We suggest following their discord for updates."
+      "message": "There is a current issue with BungeeTabListPlus and the latest Minecraft update, we suggest following their discord for updates."
     },
     {
       "command": "reload",
-      "message": "**Do not use the `/reload` command**. It will cause issues with your server and it's plugins. For more information, see https://madelinemiller.dev/blog/problem-with-reload/\n*Note: You can safely use `/minecraft:reload` to reload datapacks.*"
+      "message": "**Do not use the `/reload` command**. It will cause issues with your server and its plugins. For more information, see https://madelinemiller.dev/blog/problem-with-reload/\n*Note: You can safely use `/minecraft:reload` to reload datapacks.*"
     },
     {
       "command": "height",
-      "message": "Every player on 1.7.x - 1.16.5 can still play on a 1.18+ server but **the new world height is not supported** *(players are stuck below y=0 & only see void)*\n\n*To avoid/revert this, Use a datapack or downgrade back to 1.17.1 or only allow 1.17+ players, see https://gist.github.com/Jo0001/4fe96cf5a78c8a00560ea985f3b9eb22 for more information.*"
+      "message": "Every player on 1.7.x - 1.16.5 can still play on a 1.18+ server but **the new world height is not supported** *(players are stuck below y=0 & only see void)*\n\n*To avoid/revert this, use a datapack or downgrade back to 1.17.1 or only allow 1.17+ players, see https://gist.github.com/Jo0001/4fe96cf5a78c8a00560ea985f3b9eb22 for more information.*"
     }
   ]
 }

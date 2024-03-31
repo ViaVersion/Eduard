@@ -23,14 +23,12 @@ public final class SupportMessageListener extends ListenerAdapter {
         String line = event.getMessage().getContentRaw();
         if (line.startsWith("?")) {
             line = line.substring(1);
-            System.out.println(line);
             String[] args = line.split(" ");
 
             for (SupportMessage message : bot.getSupportMessages()) {
                 for (String command : message.getCommands()) {
                     if (args[0].equalsIgnoreCase(command)) {
                         SupportMessage.Channel channel = SupportMessage.Channel.byId(bot, event.getChannel().getIdLong());
-                        System.out.println(channel);
                         if (args.length > 1) {
                             // Allow to override channel, e.g. ?dump proxy will show the proxy-support dump message in any channel
                             final SupportMessage.Channel cmdChannel = SupportMessage.Channel.byName(args[1]);
@@ -42,7 +40,6 @@ public final class SupportMessageListener extends ListenerAdapter {
                             return;
                         }
                         for (SupportMessage.Message msg : message.getMessages()) {
-                            System.out.println(msg.getChannel() + " " + channel);
                             if (msg.getChannel() == null || channel == msg.getChannel()) {
                                 event.getChannel().sendMessage(msg.getMessage()).queue();
                                 return;

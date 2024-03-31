@@ -41,7 +41,10 @@ public final class ViaEduardBot {
     private final JDA jda;
     private final Guild guild;
     private long botChannelId;
-    private long supportChannelId;
+    private long pluginSupportChannelId;
+    private long modSupportChannelId;
+    private long proxySupportChannelId;
+    private long linksChannelId;
     private Set<Long> nonSupportChannelIds;
     private String[] trackedBranches;
     private String privateHelpMessage;
@@ -111,7 +114,10 @@ public final class ViaEduardBot {
             trackedBranches[i] = trackedBranchesArray.get(i).getAsString();
         }
 
-        supportChannelId = object.getAsJsonPrimitive("support-channel").getAsLong();
+        pluginSupportChannelId = object.getAsJsonPrimitive("plugin-support-channel").getAsLong();
+        modSupportChannelId = object.getAsJsonPrimitive("mod-support-channel").getAsLong();
+        proxySupportChannelId = object.getAsJsonPrimitive("proxy-support-channel").getAsLong();
+        linksChannelId = object.getAsJsonPrimitive("links-channel").getAsLong();
         nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
                 .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
@@ -154,8 +160,20 @@ public final class ViaEduardBot {
         return botChannelId;
     }
 
-    public long getSupportChannelId() {
-        return supportChannelId;
+    public long getPluginSupportChannelId() {
+        return pluginSupportChannelId;
+    }
+
+    public long getModSupportChannelId() {
+        return modSupportChannelId;
+    }
+
+    public long getProxySupportChannelId() {
+        return proxySupportChannelId;
+    }
+
+    public long getLinksChannelId() {
+        return linksChannelId;
     }
 
     public Set<Long> getNonSupportChannelIds() {

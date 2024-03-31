@@ -37,13 +37,13 @@
       "match-text": ["Source 0: com.viaversion.viaversion.protocols.base.BaseProtocol1_7$$Lambda$3268/0x000000080154a200"],
       "error-message": "This error is most likely caused by your proxy software being out of date, or incompatibility with another plugin like limbo, or custom client.",
       "confidence": 80,
-      "from": ["text", "file","image"]
+      "from": ["text", "file", "image"]
     },
     "BlockedProtocols": {
       "match-text": ["You are using an unsupported Minecraft version!"],
       "error-message": "'You are using an unsupported Minecraft version!' is the default message for the blocked-versions/protocols setting. Please check your ViaVersion config and make sure you have the correct version set.",
       "confidence": 80,
-      "from": ["text", "file","image"]
+      "from": ["text", "file", "image"]
     }
   },
   "support-messages": [
@@ -84,7 +84,7 @@
       "messages": {
         "plugin": "Please provide more information:\n- Enable `debug=true` in server.properties and recreate the issue.\n- Provide `/viaversion dump` link, this will allow us to work out incompatibilities.\n- Ensure you've said the **client-version** the issue happens with.",
         "mod": "Please provide more information:\n- Provide `/viafabricplus dump` link, this will allow us to work out incompatibilities.\n- Provide your `latest.log` file.\n- Ensure you've said the **target-version** the issue happens with.",
-        "proxy": "Please provide more information:\n- Go to `Advanced` and run `Upload latest log file` and provide us the link.\n- Ensure you've said the **Server Version** the issue happens with."
+        "proxy": "Please provide more information:\n- Go to `Advanced` and run `Create ViaVersion dump` and provide us the link.\n- Go to `Advanced` and run `Upload latest log file` and provide us the link.\n- Ensure you've said the **Server Version** the issue happens with."
       }
     },
     {

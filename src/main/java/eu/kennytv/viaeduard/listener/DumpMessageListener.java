@@ -220,7 +220,7 @@ public final class DumpMessageListener extends ListenerAdapter {
                 if (serverProtocol > 107 // serverProtocol > 1.9
                         && compareResults.stream().anyMatch(r -> r.pluginName.equals("ViaRewind"))
                         && compareResults.stream().noneMatch(r -> r.pluginName.equals("ViaBackwards"))) {
-                    EmbedMessageUtil.sendMessage(message.getChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#698284788074938388> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
+                    EmbedMessageUtil.sendMessage(message.getChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#" + bot.getLinksChannelId() + "> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
                 }
             }
         }
@@ -247,7 +247,7 @@ public final class DumpMessageListener extends ListenerAdapter {
             } else {
                 updateMessage.append(platformType).append(" ").append(pluginsToUpdate.get(0));
             }
-            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update the " + updateMessage + " from <#698284788074938388>, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
+            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update the " + updateMessage + " from <#" + bot.getLinksChannelId() + ">, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
         }
     }
 

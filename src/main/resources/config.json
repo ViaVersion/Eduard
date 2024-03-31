@@ -1,7 +1,10 @@
 {
   "token": "",
   "bot-channel": 698483428915675186,
-  "support-channel": 316208160232701955,
+  "plugin-support-channel": 316208160232701955,
+  "mod-support-channel": 1112835241271373966,
+  "proxy-support-channel": 1112837970844721342,
+  "links-channel": 698284788074938388,
   "not-support-channels": [
     316218802155028482,
     316206679014244363

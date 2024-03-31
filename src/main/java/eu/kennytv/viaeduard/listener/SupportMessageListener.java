@@ -21,32 +21,28 @@ public final class SupportMessageListener extends ListenerAdapter {
             return;
         }
         String line = event.getMessage().getContentRaw();
-        if (line.startsWith("?")) {
-            line = line.substring(1);
-            String[] args = line.split(" ");
+        if (!line.startsWith("?")) {
+            // Only listen to support commands
+            return;
+        }
+        line = line.substring(1);
+        final String[] args = line.split(" ");
+        final String command = args[0].toLowerCase();
 
-            for (SupportMessage message : bot.getSupportMessages()) {
-                for (String command : message.getCommands()) {
-                    if (args[0].equalsIgnoreCase(command)) {
-                        SupportMessage.Channel channel = SupportMessage.Channel.byId(bot, event.getChannel().getIdLong());
-                        if (args.length > 1) {
-                            // Allow to override channel, e.g. ?dump proxy will show the proxy-support dump message in any channel
-                            final SupportMessage.Channel cmdChannel = SupportMessage.Channel.byName(args[1]);
-                            if (cmdChannel != null) channel = cmdChannel; // Ignore argument if invalid
-                        }
-                        // If command isn't executed in one of the support channels, just use the plugin-support message
-                        if (channel == null) {
-                            event.getChannel().sendMessage(message.getMessages().get(0).getMessage()).queue();
-                            return;
-                        }
-                        for (SupportMessage.Message msg : message.getMessages()) {
-                            if (msg.getChannel() == null || channel == msg.getChannel()) {
-                                event.getChannel().sendMessage(msg.getMessage()).queue();
-                                return;
-                            }
-                        }
-                    }
+        for (SupportMessage message : bot.getSupportMessages()) {
+            if (message.getCommands().contains(command)) {
+                SupportMessage.Channel channel = SupportMessage.Channel.byId(bot, event.getChannel().getIdLong());
+                if (args.length > 1) {
+                    // Allow to override channel, e.g. ?dump proxy will show the proxy-support dump message in any channel
+                    final SupportMessage.Channel cmdChannel = SupportMessage.Channel.byName(args[1]);
+                    if (cmdChannel != null) channel = cmdChannel; // Ignore argument if invalid
                 }
+                // If command isn't executed in one of the support channels, just use the plugin-support message
+                if (channel == null) {
+                    event.getChannel().sendMessage(message.getMessages().get(0).getMessage()).queue();
+                    return;
+                }
+                message.send(event.getChannel(), channel);
             }
         }
     }

@@ -42,7 +42,7 @@ public final class ViaEduardBot {
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
-    private Set<SupportMessage> supportMessages;
+    private List<SupportMessage> supportMessages;
 
     public static void main(final String[] args) {
         new ViaEduardBot();
@@ -116,7 +116,7 @@ public final class ViaEduardBot {
         nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
                 .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
-        supportMessages = new HashSet<>();
+        supportMessages = new ArrayList<>();
         for (JsonElement element : object.getAsJsonArray("support-messages")) {
             final JsonObject message = element.getAsJsonObject();
             Set<String> commands;
@@ -125,7 +125,7 @@ public final class ViaEduardBot {
             } else if (message.has("command")) {
                 commands = Collections.singleton(message.getAsJsonPrimitive("command").getAsString());
             } else {
-                continue; // bad command
+                throw new IllegalStateException("Invalid support message, missing command");
             }
             final List<SupportMessage.Message> messages = new ArrayList<>();
             if (message.has("messages")) {
@@ -133,14 +133,14 @@ public final class ViaEduardBot {
                 for (Map.Entry<String, JsonElement> entry : messagesElement.entrySet()) {
                     final SupportMessage.Channel channel = SupportMessage.Channel.byName(entry.getKey());
                     if (channel == null) {
-                        continue; // bad command
+                        throw new IllegalStateException("Invalid support message, unknown channel: " + entry.getKey());
                     }
                     messages.add(new SupportMessage.Message(channel, entry.getValue().getAsString()));
                 }
             } else if (message.has("message")) {
                 messages.add(new SupportMessage.Message(null, message.getAsJsonPrimitive("message").getAsString()));
             } else {
-                continue; // bad command
+                throw new IllegalStateException("Invalid support message, missing content");
             }
 
             supportMessages.add(new SupportMessage(commands, messages));
@@ -204,7 +204,7 @@ public final class ViaEduardBot {
         return nonSupportChannelIds;
     }
 
-    public Set<SupportMessage> getSupportMessages() {
+    public List<SupportMessage> getSupportMessages() {
         return supportMessages;
     }
 }

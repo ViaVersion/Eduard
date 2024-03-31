@@ -1,6 +1,8 @@
 package eu.kennytv.viaeduard.util;
 
+import com.google.common.base.Preconditions;
 import eu.kennytv.viaeduard.ViaEduardBot;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 import java.util.List;
 import java.util.Set;
@@ -11,8 +13,20 @@ public class SupportMessage {
     private final List<Message> messages;
 
     public SupportMessage(final Set<String> commands, final List<Message> messages) {
+        Preconditions.checkArgument(!commands.isEmpty(), "commands must not be empty");
+        Preconditions.checkArgument(!messages.isEmpty(), "messages must not be empty");
+
         this.commands = commands;
         this.messages = messages;
+    }
+
+    public void send(final MessageChannelUnion messageChannel, final Channel channel) {
+        for (SupportMessage.Message msg : getMessages()) {
+            if (msg.getChannel() == null || channel == msg.getChannel()) {
+                messageChannel.sendMessage(msg.getMessage()).queue();
+                return;
+            }
+        }
     }
 
     public Set<String> getCommands() {

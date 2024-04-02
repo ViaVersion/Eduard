@@ -14,7 +14,7 @@
                 "proxy",
                 "velocity"
             ],
-            "message": "Please update your proxy to the latest version to support 1.8 - latest release clients:\n**BungeeCord** - https://ci.md-5.net/job/BungeeCord\n**Velocity** - https://papermc.io/downloads#Velocity"
+            "message": "Please update your proxy to the latest version to support 1.8 - latest release clients:\n**Velocity** - https://papermc.io/downloads#Velocity\n**BungeeCord** - https://ci.md-5.net/job/BungeeCord"
         },
         {
             "command": "packets",
@@ -104,10 +104,6 @@
         {
             "command": "stack",
             "message": "Please only install Via* plugins on either Bungee/Velocity **OR** backend servers *(e.g. Spigot / Paper / Sponge)*. We recommend **backend servers** because it will give ViaVersion more information and a better experience."
-        },
-        {
-            "command": "proxy",
-            "message": "Please update your proxy to the latest version to support 1.8 - latest release clients:\n**BungeeCord** - https://ci.md-5.net/job/BungeeCord\n**Velocity** - https://papermc.io/downloads#Velocity"
         },
         {
             "commands": [

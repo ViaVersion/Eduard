@@ -21,7 +21,7 @@
         "main",
         "dev"
     ],
-    "help-message": "Please explain your issue and patiently wait for a response :)\nConsider also checking pinned messages for common issues (icon in the top right)",
+    "help-message": "Please explain your issue and patiently wait for a response :)\nConsider also checking pinned messages for common issues. *(icon in the top right)*",
     "private-help-message": "Please don't message me, I am afraid of human contact. :(\nMaybe a mortal in the support channel over at the ViaVersion Discord can help you.",
     "error-helper": {
         "enable-image-scanning": true,
@@ -29,7 +29,7 @@
             "match-text": [
                 "Outdated server! I'm still on 1."
             ],
-            "error-message": "Please make sure your ViaVersion/ViaBackwards/Viarewind and proxy (Velocity/BungeeCord) are up to date. Also note that ViaBackwards is required to allow older client versions on your server, and ViaRewind adds additional 1.7/1.8 client support.",
+            "error-message": "Please make sure your ViaVersion/ViaBackwards/ViaRewind and proxy *(Velocity/BungeeCord)* are up to date. Also note that ViaBackwards is required to allow older client versions on your server, and ViaRewind adds additional 1.7/1.8 client support.",
             "confidence": 70,
             "from": [
                 "text",

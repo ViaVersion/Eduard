@@ -91,7 +91,7 @@
                 "pl",
                 "setup"
             ],
-            "message": "If you want newer versions, e.g. 1.15.2 on 1.15 server, download just ViaVersion,\nIf you want older versions, e.g. 1.14.4 on 1.15 server, download ViaVersion and ViaBackwards,\nIf you want 1.7 / 1.8 versions, download ViaVersion, ViaBackwards and ViaRewind,\n\nStill confused? Try this tool - https://viaversion.com/setup"
+            "message": "If you want newer versions, e.g. 1.15.2 on 1.15 server, download just ViaVersion.\nIf you want older versions, e.g. 1.14.4 on 1.15 server, download ViaVersion and ViaBackwards.\nIf you want 1.7 / 1.8 versions, download ViaVersion, ViaBackwards and ViaRewind.\n\nStill confused? Try this tool - https://viaversion.com/setup"
         },
         {
             "command": "api",

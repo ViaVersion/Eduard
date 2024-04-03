@@ -91,7 +91,7 @@
                 "pl",
                 "setup"
             ],
-            "message": "If you want newer versions, e.g. 1.15.2 on 1.15 server, download just ViaVersion.\nIf you want older versions, e.g. 1.14.4 on 1.15 server, download ViaVersion and ViaBackwards.\nIf you want 1.7 / 1.8 versions, download ViaVersion, ViaBackwards and ViaRewind\n\nStill confused? Try this tool - https://viaversion.com/setup"
+            "message": "If you want newer versions, e.g. 1.15.2 on 1.15 server, download just ViaVersion,\nIf you want older versions, e.g. 1.14.4 on 1.15 server, download ViaVersion and ViaBackwards,\nIf you want 1.7 / 1.8 versions, download ViaVersion, ViaBackwards and ViaRewind,\n\nStill confused? Try this tool - https://viaversion.com/setup"
         },
         {
             "command": "api",
@@ -133,7 +133,7 @@
         },
         {
             "command": "error",
-            "message": "**That issue is not from Via, it's from the plugin shown in the stack trace. Try the latest version of that plugin or contact the author of it and tell them to update the Via API usage.**"
+            "message": "**That issue is not from Via, it's from the plugin shown in the stacktrace. Try the latest version of that plugin or contact the author of it and tell them to update the Via API usage.**"
         },
         {
             "command": "btlp",
@@ -145,7 +145,7 @@
         },
         {
             "command": "height",
-            "message": "Every player on 1.7.x - 1.16.5 can still play on a 1.18+ server but **the new world height is not supported** *(players are stuck below y=0 & only see void)*\n\n*To avoid/revert this, use a datapack or downgrade back to 1.17.1 or only allow 1.17+ players, see https://gist.github.com/Jo0001/4fe96cf5a78c8a00560ea985f3b9eb22 for more information.*"
+            "message": "Every player on 1.7.x - 1.16.5 can still play on 1.18+ servers but **the new world height is not supported.** *(players are stuck below y=0 & only see void)*\n\n*To avoid/revert this, use a datapack or downgrade back to 1.17.1 or only allow 1.17+ players, see https://gist.github.com/Jo0001/4fe96cf5a78c8a00560ea985f3b9eb22 for more information.*"
         },
         {
             "commands": [

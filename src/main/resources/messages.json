@@ -102,10 +102,6 @@
             }
         },
         {
-            "command": "stack",
-            "message": "Please only install Via* plugins on either Bungee/Velocity **OR** backend servers *(e.g. Spigot / Paper / Sponge)*. We recommend **backend servers** because it will give ViaVersion more information and a better experience."
-        },
-        {
             "commands": [
                 "mapping",
                 "mappings"

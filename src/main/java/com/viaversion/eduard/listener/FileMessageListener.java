@@ -43,7 +43,7 @@ public final class FileMessageListener extends ListenerAdapter {
                 return;
             }
 
-            message.getChannel().asTextChannel().sendMessage("Please use https://mclo.gs/ for sending long text, code, or server logs!").queue();
+            message.getChannel().asTextChannel().sendMessage("Please use https://mclo.gs/ for sending long text, code, or server logs.").queue();
         }
     }
 }

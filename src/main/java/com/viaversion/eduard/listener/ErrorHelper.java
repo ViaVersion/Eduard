@@ -26,17 +26,19 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.viaversion.eduard.ViaEduardBot;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -98,7 +100,10 @@ public class ErrorHelper extends ListenerAdapter {
 
         final Message message = event.getMessage();
         final boolean sendDebug = message.isFromGuild();
-        handle(message, message.getContentRaw(), ErrorContainer.TEXT, sendDebug);
+        final Set<ErrorEntry> triggered = new HashSet<>();
+        if (!handle(message, message.getContentRaw(), ErrorContainer.TEXT, sendDebug, triggered)) {
+            return;
+        }
 
         for (final Message.Attachment attachment : message.getAttachments()) {
             final String fileName = attachment.getFileName();
@@ -107,31 +112,30 @@ public class ErrorHelper extends ListenerAdapter {
                     continue;
                 }
 
-                final StringBuilder builder = new StringBuilder();
-                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(attachment.getProxy().download().get()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        builder.append(line);
-                    }
+                final String content;
+                try (final InputStream in = new BufferedInputStream(attachment.getProxy().download().get())) {
+                    content = new String(in.readAllBytes(), StandardCharsets.UTF_8);
                 } catch (final IOException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                     continue;
                 }
 
-                handle(message, builder.toString(), ErrorContainer.FILE, sendDebug);
+                if (!handle(message, content, ErrorContainer.FILE, sendDebug, triggered)) {
+                    return;
+                }
             } else if (enableImageScanning && attachment.isImage()) {
                 if (attachment.getSize() > MAX_IMAGE_BYTES) {
                     continue;
                 }
 
-                executorService.execute(() -> readImage(attachment, message, sendDebug));
+                executorService.execute(() -> readImage(attachment, message, sendDebug, triggered));
             }
         }
     }
 
-    private void readImage(final Message.Attachment attachment, final Message message, final boolean sendDebug) {
+    private void readImage(final Message.Attachment attachment, final Message message, final boolean sendDebug, final Set<ErrorEntry> alreadyTriggered) {
         final BufferedImage image;
-        try (final InputStream is = attachment.getProxy().download().get()) {
+        try (final InputStream is = new BufferedInputStream(attachment.getProxy().download().get())) {
             image = ImageIO.read(is);
         } catch (final Exception e) {
             System.err.println("Error while reading image: " + attachment.getUrl());
@@ -161,12 +165,23 @@ public class ErrorHelper extends ListenerAdapter {
             message.getChannel().sendMessage("[OCR Debug] " + text).queue();
         }
 
-        handle(message, text, ErrorContainer.IMAGE, sendDebug);
+        handle(message, text, ErrorContainer.IMAGE, sendDebug, alreadyTriggered);
     }
 
-    private void handle(final Message message, final String messageContent, final ErrorContainer errorContainer, final boolean sendDebug) {
+    private boolean handle(
+        final Message message,
+        final String messageContent,
+        final ErrorContainer errorContainer,
+        final boolean sendDebug,
+        final Set<ErrorEntry> alreadyTriggered
+    ) {
         final String cleanMessage = cleanString(messageContent);
         for (final ErrorEntry entry : errorMessages) {
+            if (alreadyTriggered.contains(entry)) {
+                // Don't trigger the same message twice
+                continue;
+            }
+
             final Result result = entry.test(cleanMessage, errorContainer);
             if (!result.triggered()) {
                 continue;
@@ -174,8 +189,10 @@ public class ErrorHelper extends ListenerAdapter {
 
             if (bot.getNonSupportChannelIds().contains(message.getChannelIdLong())) {
                 bot.sendSupportChannelRedirect(message.getChannel(), message.getAuthor());
-                return;
+                return false;
             }
+
+            alreadyTriggered.add(entry);
 
             final String response = entry.response();
             message.getChannel().sendMessage(response + " " + message.getAuthor().getAsMention()).queue();
@@ -187,6 +204,7 @@ public class ErrorHelper extends ListenerAdapter {
                 bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId()).sendMessage(debugMessage).queue();
             }
         }
+        return true;
     }
 
     private static String cleanString(final String string) {

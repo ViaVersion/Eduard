@@ -242,6 +242,8 @@ public final class ViaEduardBot {
     }
 
     public void setLatestRelease(final String platform, final String version) throws IOException {
+        latestReleases.put(platform, new Version(version));
+
         final JsonObject object = loadFile("config.json");
         object.getAsJsonObject("latest-releases").addProperty(platform, version);
         Files.writeString(Path.of("config.json"), GSON.toJson(object));

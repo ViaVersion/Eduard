@@ -178,7 +178,21 @@
       "commands": [
         "java17"
       ],
-      "message": "ViaVersion for Minecraft 1.21 will require Java 17. Here are some things to note:\n- See https://docs.papermc.io/misc/java-install on how to update your Java version\n- While **we will still offer additional magical jars for Java 8 compatibility** on releases for the foreseeable future, you should still make sure your server can run on Java 17 if possible by any means\n- Even 1.8-1.12 servers can run Java 17. Most of their server forks will also have proper support for it\n- Some versions have an arbitrary/unnecessary Java version check from Spigot that prevent startup: Use Paper's `-DPaper.IgnoreJavaVersion=true` for 1.16 and 1.17"
+      "message": "ViaVersion for Minecraft 1.21 (v5.0.0+) requires Java 17. Here are some things to note:\n- See https://docs.papermc.io/misc/java-install on how to update your Java version\n- While **we will still offer additional magical jars for Java 8 compatibility** on releases for the foreseeable future, you should still make sure your server can run on Java 17 if possible by any means\n- Even 1.8-1.12 servers can run Java 17. Most of their server forks will also have proper support for it\n- Some versions have an arbitrary/unnecessary Java version check from Spigot that prevent startup: Use Paper's `-DPaper.IgnoreJavaVersion=true` for 1.16 and 1.17"
+    },
+    {
+      "commands": [
+        "bungee",
+        "sponge"
+      ],
+      "message": "ViaVersion for Minecraft 1.21 (v5.0.0+) doesn't support BungeeCord or Sponge natively:\n- Bungee/Waterfall support has been moved to: <https://hangar.papermc.io/ViaVersion/ViaBungee>(currently still not working)\n  - ViaVersion (and other Via plugins if wanted) need to be put into `plugins/ViaVersion/` for ViaBungee to load them\n- Sponge support has been moved to: <https://modrinth.com/plugin/viasponge>\n  - ViaVersion (and other Via plugins if wanted) need to be put into `config/viaversion/` for ViaSponge to load them"
+    },
+    {
+      "commands": [
+        "protocolsupport",
+        "ps"
+      ],
+      "message": "ProtocolSupport compatibility has been moved to an addon (<https://github.com/ViaVersionAddons/ProtocolSupportCompat>), since PS has been dead for a while and VR+VB are generally more usable across versions now"
     }
   ]
 }

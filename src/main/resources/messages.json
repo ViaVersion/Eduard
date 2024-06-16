@@ -185,7 +185,7 @@
         "bungee",
         "sponge"
       ],
-      "message": "ViaVersion for Minecraft 1.21 (v5.0.0+) doesn't support BungeeCord or Sponge natively:\n- Bungee/Waterfall support has been moved to: <https://hangar.papermc.io/ViaVersion/ViaBungee>(currently still not working)\n  - ViaVersion (and other Via plugins if wanted) need to be put into `plugins/ViaVersion/` for ViaBungee to load them\n- Sponge support has been moved to: <https://modrinth.com/plugin/viasponge>\n  - ViaVersion (and other Via plugins if wanted) need to be put into `config/viaversion/` for ViaSponge to load them"
+      "message": "ViaVersion for Minecraft 1.21 (v5.0.0+) doesn't support BungeeCord or Sponge natively:\n- Bungee/Waterfall support has been moved to: <https://hangar.papermc.io/ViaVersion/ViaBungee> (currently still not working)\n  - ViaVersion (and other Via plugins if wanted) need to be put into `plugins/ViaVersion/` for ViaBungee to load them\n- Sponge support has been moved to: <https://modrinth.com/plugin/viasponge>\n  - ViaVersion (and other Via plugins if wanted) need to be put into `config/viaversion/` for ViaSponge to load them"
     },
     {
       "commands": [

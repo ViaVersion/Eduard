@@ -193,6 +193,13 @@
         "ps"
       ],
       "message": "ProtocolSupport compatibility has been moved to an addon (<https://github.com/ViaVersionAddons/ProtocolSupportCompat>), since PS has been dead for a while and VR+VB are generally more usable across versions now"
+    },
+    {
+      "commands": [
+        "sponsor",
+        "snapshot"
+      ],
+      "message": "**ViaVersion and ViaBackwards will only be released a day or so *after* a Minecraft update** unless the protocol changes of the update were trivial. **If you want early-access, usually days or even weeks before the final release, you can subscribe to either**:\n- [GitHub Sponsors](<https://github.com/sponsors/kennytv/sponsorships?sponsor=kennytv&tier_id=385613&preview=false>) (*preferred option, also allows payment through Patreon*. Use the `/verify` command on this Discord after), or alternatively\n- [Patreon](<https://www.patreon.com/kennytv/membership>) (*does not automatically come with private repo access*. See the highest tier and make sure to link Patreon to your Discord account under Discord Settings->Connections)\nThe GH Sponsors tier also includes automated access to a private repository with the code, which will be pushed to the public repository after the given delay on a Minecraft update."
     }
   ]
 }

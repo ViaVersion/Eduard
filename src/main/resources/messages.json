@@ -200,6 +200,43 @@
         "snapshot"
       ],
       "message": "**ViaVersion and ViaBackwards will only be released a day or so *after* a Minecraft update** unless the protocol changes of the update were trivial. **If you want early-access, usually days or even weeks before the final release, you can subscribe to either**:\n- [GitHub Sponsors](<https://github.com/sponsors/kennytv/sponsorships?sponsor=kennytv&tier_id=385613&preview=false>) (*preferred option, also allows payment through Patreon*. Use the `/verify` command on this Discord after), or alternatively\n- [Patreon](<https://www.patreon.com/kennytv/membership>) (*does not automatically come with private repo access*. See the highest tier and make sure to link Patreon to your Discord account under Discord Settings->Connections)\nThe GH Sponsors tier also includes automated access to a private repository with the code, which will be pushed to the public repository after the given delay on a Minecraft update."
+    },
+    {
+      "commands": [
+        "java8",
+        "unsupported"
+      ],
+      "message": "ViaVersion for Minecraft 1.21 (v5.0.0+) requires **Java 17**. **If you weren't able to update to newer Java versions**, you can use the Java 8 compatibility builds we provide:\n\nViaVersion - <https://ci.viaversion.com/job/ViaVersion-Java8/>\nViaBackwards - <https://ci.viaversion.com/view/ViaBackwards/job/ViaBackwards-Java8/>\nViaRewind - <https://ci.viaversion.com/view/ViaRewind/job/ViaRewind-Java8/>\n\nYou should not make yourself depend on these *too* much, they will generally **only be updated on releases**!"
+    },
+    {
+      "commands": [
+        "viafabricplus",
+        "vfpversions"
+      ],
+      "message": "ViaFabricPlus **only supports the latest game version**. **Fixes or updates for older game versions will not be provided**. You have three options:\n\n- Update your game to the **latest version** and use the **latest ViaFabricPlus** version. (<https://modrinth.com/mod/viafabricplus/versions>)\n- Switch to ViaFabric, which supports more versions. (<https://modrinth.com/mod/viafabric/versions>)\n- Switch to ViaProxy, a standalone proxy that supports every client version from 1.7 and upwards. (<https://github.com/ViaVersion/ViaProxy>)"
+    },
+    {
+      "commands": [
+        "bumpvia"
+      ],
+      "messages": {
+        "mod": "This is a ViaVersion/ViaBackwards bug **which is already fixed**, you can update ViaVersion/ViaBackwards locally by downloading it from here: \n<https://ci.viaversion.com/job/ViaVersion/>\n<https://ci.viaversion.com/view/ViaBackwards/job/ViaBackwards/>\n\nThen opening your .minecraft folder (or the folder your mods folder is located) and put the jars into:\n- **config/viafabricplus/jars** in case you use **ViaFabricPlus**\n- **mods** folder in case you use **ViaFabric**",
+        "proxy": "This is a ViaVersion/ViaBackwards/ViaRewind bug **which is already fixed**, you can update ViaVersion/ViaBackwards/ViaRewind locally by downloading it from here: \n<https://ci.viaversion.com/job/ViaVersion/>\n<https://ci.viaversion.com/view/ViaBackwards/job/ViaBackwards/>\n<https://ci.viaversion.com/view/ViaRewind/job/ViaRewind/>\n\nThen put the jars into the **jars** folder which should be located in the same folder as the **ViaProxy-<version>.jar** file, if the folder **doesn't exist**, you need to manually create it. Restart ViaProxy after that."
+      }
+    },
+    {
+      "commands": [
+        "out-of-order",
+        "chat-time"
+      ],
+      "message": "**To resolve the \"Out-of-order chat packet received\" error:**\n\n1. You need to have either Pufferfish or Purpur as server software, *(or another server fork that has the workaround available)*\n2. Ensure that \"disable-out-of-order-chat\" is set to true in the pufferfish.yml file.\n\nOtherwise if this is not an option for you then this is usually caused by a third-party plugin or server software causing a chat race condition problem."
+    },
+    {
+      "commands": [
+        "network-error",
+        "network"
+      ],
+      "message": "`Network protocol error` means you have a plugin sending bad data, usually scoreboard/tablist related. TAB for example has already fixed this some time ago in their latest version.\n\nThis was already broken before, but \"only\" printed an error in the client's console. Now they will forcefully disconnect themselves. You can temporarily (!) toggle the system property/startup flag `viaversion.strict-error-handling1_20_5` to make the client ignore the errors again, but this will not work in 1.21 anymore"
     }
   ]
 }

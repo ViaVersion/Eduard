@@ -98,7 +98,7 @@
       "messages": {
         "plugin": "You can find documentation on how to use our API over at https://docs.viaversion.com/display/VIAVERSION/Basic+API+usage",
         "mod": "You can find documentation and contributing guidelines for ViaFabricPlus over at https://github.com/ViaVersion/ViaFabricPlus/tree/main/docs",
-        "proxy": "You can find documentation on how to create ViaProxy plugins over at https://github.com/ViaVersion/ViaFabricPlus/tree/main/docs"
+        "proxy": "You can find documentation on how to create ViaProxy plugins over at https://github.com/ViaVersion/ViaProxy?tab=readme-ov-file#developer-plugin-api"
       }
     },
     {

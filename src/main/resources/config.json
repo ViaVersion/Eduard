@@ -41,7 +41,7 @@
       "match-text": [
         "com.viaversion.viaversion.exception.InformativeException: Please report this on the Via support Discord or open an issue on the relevant GitHub repository"
       ],
-      "error-message": "Please post your full server console log including the error to https://mclo.gs/ and link it here.",
+      "error-message": "Please post your full server console, client or proxy log (depending on what Via* product you use) including the error to https://mclo.gs/ and link it here.",
       "confidence": 70,
       "from": [
         "text",

@@ -206,7 +206,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
                     if (hasProtocolSupport && subplatform.equals("ViaBackwards")) {
                         message.addReaction(Emoji.fromUnicode("U+26A1")).queue(); // Lightning
-                        EmbedMessageUtil.sendMessage(message.getChannel(), "Do not use ProtocolSupport and ViaBackwards (+ ViaRewind) together, please remove one of them.", Color.RED);
+                        EmbedMessageUtil.sendMessage(message.getChannel(), "Do not use ProtocolSupport and ViaBackwards (+ ViaRewind) together, please remove one of them. Note that ProtocolSupport is not actively updated anymore.", Color.RED);
                     }
 
                     // Found subplatform, check data

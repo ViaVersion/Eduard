@@ -199,8 +199,8 @@ public class ErrorHelper extends ListenerAdapter {
 
             if (sendDebug) {
                 final String debugMessage = "Triggered " + entry.name() + " on " + message.getJumpUrl() + " (required confidence: " + entry.requiredConfidence() + ")"
-                    + "\nPartial confidence: " + result.heighestPartialRatio()
-                    + "\nWeighted confidence: " + result.heighestWeightedRatio();
+                    + "\nPartial confidence: " + result.highestPartialRatio()
+                    + "\nWeighted confidence: " + result.highestWeightedRatio();
                 bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId()).sendMessage(debugMessage).queue();
             }
         }
@@ -246,8 +246,8 @@ public class ErrorHelper extends ListenerAdapter {
                 return Result.NONE;
             }
 
-            int heighestPartialRatio = 0;
-            int heighestWeightedRatio = 0;
+            int highestPartialRatio = 0;
+            int highestWeightedRatio = 0;
             for (final String cleanedTrigger : cleanedTriggers) {
                 if (error.length() < cleanedTrigger.length() * MIN_LENGTH) {
                     return Result.NONE;
@@ -259,10 +259,10 @@ public class ErrorHelper extends ListenerAdapter {
                     return Result.NONE;
                 }
 
-                heighestPartialRatio = Math.max(heighestPartialRatio, partialRatio);
-                heighestWeightedRatio = Math.max(heighestWeightedRatio, weightedRatio);
+                highestPartialRatio = Math.max(highestPartialRatio, partialRatio);
+                highestWeightedRatio = Math.max(highestWeightedRatio, weightedRatio);
             }
-            return new Result(true, heighestPartialRatio, heighestWeightedRatio);
+            return new Result(true, highestPartialRatio, highestWeightedRatio);
         }
 
         public String name() {
@@ -281,25 +281,25 @@ public class ErrorHelper extends ListenerAdapter {
     public static final class Result {
         private static final Result NONE = new Result(false, 0, 0);
         private final boolean triggered;
-        private final int heighestPartialRatio;
-        private final int heighestWeightedRatio;
+        private final int highestPartialRatio;
+        private final int highestWeightedRatio;
 
-        Result(final boolean triggered, final int heighestPartialRatio, final int heighestWeightedRatio) {
+        Result(final boolean triggered, final int highestPartialRatio, final int highestWeightedRatio) {
             this.triggered = triggered;
-            this.heighestPartialRatio = heighestPartialRatio;
-            this.heighestWeightedRatio = heighestWeightedRatio;
+            this.highestPartialRatio = highestPartialRatio;
+            this.highestWeightedRatio = highestWeightedRatio;
         }
 
         public boolean triggered() {
             return triggered;
         }
 
-        public int heighestPartialRatio() {
-            return heighestPartialRatio;
+        public int highestPartialRatio() {
+            return highestPartialRatio;
         }
 
-        public int heighestWeightedRatio() {
-            return heighestWeightedRatio;
+        public int highestWeightedRatio() {
+            return highestWeightedRatio;
         }
     }
 }

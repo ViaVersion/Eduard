@@ -288,8 +288,9 @@ public final class DumpMessageListener extends ListenerAdapter {
         // U+2757 exclamation mark
         // U+2714 check mark
 
-        // Commit does not exist / http error
-        if (distance == -1) {
+        if (distance == -2) {
+            return new CompareResult(name, "**Unknown commit. Fork?**\n" + versionInfo, Color.MAGENTA, VersionStatus.UNKNOWN);
+        } else if (distance == -1) {
             return new CompareResult(name, "**Error fetching commit data**\n" + versionInfo, Color.GRAY, VersionStatus.UNKNOWN);
         } else if (distance == 0) {
             return new CompareResult(name, "You are even with **" + trackedBranch + "**\n" + versionInfo, Color.CYAN, VersionStatus.UPDATED_CI);

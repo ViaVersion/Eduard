@@ -39,6 +39,7 @@ import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ViaEduardBot {
@@ -74,6 +75,7 @@ public final class ViaEduardBot {
 
         final String token = object.getAsJsonPrimitive("token").getAsString();
         final JDABuilder builder = JDABuilder.createDefault(token, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES);
+        builder.disableCache(CacheFlag.VOICE_STATE, CacheFlag.EMOJI, CacheFlag.STICKER, CacheFlag.SCHEDULED_EVENTS);
         builder.setAutoReconnect(true);
         builder.setStatus(OnlineStatus.ONLINE);
 

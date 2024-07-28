@@ -14,6 +14,7 @@ import com.viaversion.eduard.listener.DumpMessageListener;
 import com.viaversion.eduard.listener.ErrorHelper;
 import com.viaversion.eduard.listener.FileMessageListener;
 import com.viaversion.eduard.listener.HelpMessageListener;
+import com.viaversion.eduard.listener.LogListener;
 import com.viaversion.eduard.listener.SlashCommandListener;
 import com.viaversion.eduard.listener.SupportMessageListener;
 import com.viaversion.eduard.util.SupportMessage;
@@ -84,7 +85,8 @@ public final class ViaEduardBot {
             .addEventListeners(new HelpMessageListener(this))
             .addEventListeners(new FileMessageListener(this))
             .addEventListeners(new SupportMessageListener(this))
-            .addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")));
+            .addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")))
+            .addEventListeners(new LogListener(this));
 
         try {
             jda = builder.build().awaitReady();

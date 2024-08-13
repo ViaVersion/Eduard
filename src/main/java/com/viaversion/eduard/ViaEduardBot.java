@@ -57,6 +57,7 @@ public final class ViaEduardBot {
     private long proxySupportChannelId;
     private long linksChannelId;
     private Set<Long> nonSupportChannelIds;
+    private long staffRoleId;
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
@@ -143,6 +144,7 @@ public final class ViaEduardBot {
         linksChannelId = object.getAsJsonPrimitive("links-channel").getAsLong();
         nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
             .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
+        staffRoleId = object.getAsJsonPrimitive("staff-role").getAsLong();
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
         return object;
     }
@@ -215,6 +217,10 @@ public final class ViaEduardBot {
 
     public String getPrivateHelpMessage() {
         return privateHelpMessage;
+    }
+
+    public long getStaffRoleId() {
+        return staffRoleId;
     }
 
     public long getBotChannelId() {

@@ -77,7 +77,7 @@ public final class HelpMessageListener extends ListenerAdapter {
         // Help check
         if (!lowerCaseMessage.contains("help") || THANKSES.stream().anyMatch(lowerCaseMessage::contains)) return;
         if (recentlySent.getIfPresent(id) != null) return;
-        if (member.hasPermission(Permission.VOICE_MOVE_OTHERS)) return;
+        if (member.getRoles().stream().anyMatch(role -> role.getIdLong() == bot.getStaffRoleId())) return;
 
         if (bot.getNonSupportChannelIds().contains(message.getChannelIdLong())) {
             bot.sendSupportChannelRedirect(message.getChannel(), message.getAuthor());

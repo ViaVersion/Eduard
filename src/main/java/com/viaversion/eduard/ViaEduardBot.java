@@ -56,8 +56,8 @@ public final class ViaEduardBot {
     private long modSupportChannelId;
     private long proxySupportChannelId;
     private long linksChannelId;
-    private Set<Long> nonSupportChannelIds;
     private long staffRoleId;
+    private Set<Long> nonSupportChannelIds;
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;

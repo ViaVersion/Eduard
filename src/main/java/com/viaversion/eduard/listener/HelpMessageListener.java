@@ -4,12 +4,13 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.viaversion.eduard.ViaEduardBot;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +35,8 @@ public final class HelpMessageListener extends ListenerAdapter {
             return;
         }
 
-        if (event.getChannel() instanceof PrivateChannel) {
+        final MessageChannelUnion channel = event.getChannel();
+        if (channel instanceof PrivateChannel) {
             final long id = event.getAuthor().getIdLong();
             if (id == bot.getJda().getSelfUser().getIdLong()) {
                 return;
@@ -44,7 +46,7 @@ public final class HelpMessageListener extends ListenerAdapter {
                 return;
             }
 
-            event.getChannel().sendMessage(bot.getPrivateHelpMessage()).queue();
+            channel.sendMessage(bot.getPrivateHelpMessage()).queue();
             recentlySentPrivate.put(id, O);
             return;
         }
@@ -65,11 +67,11 @@ public final class HelpMessageListener extends ListenerAdapter {
 
         // Hello check
         final Message message = event.getMessage();
-        final String lowerCaseMessage = message.getContentRaw().toLowerCase();
+        final String lowerCaseMessage = message.getContentRaw().toLowerCase(Locale.ROOT);
         if (lowerCaseMessage.contains("eduard") && HELLOS.stream().anyMatch(lowerCaseMessage::contains)) {
             if (hellos.getIfPresent(id) == null) {
                 hellos.put(id, O);
-                event.getChannel().sendMessage("Hello!").queue();
+                channel.sendMessage("Hello!").queue();
             }
             return;
         }
@@ -79,12 +81,12 @@ public final class HelpMessageListener extends ListenerAdapter {
         if (recentlySent.getIfPresent(id) != null) return;
         if (member.getRoles().stream().anyMatch(role -> role.getIdLong() == bot.getStaffRoleId())) return;
 
-        if (bot.getNonSupportChannelIds().contains(message.getChannelIdLong())) {
-            bot.sendSupportChannelRedirect(message.getChannel(), message.getAuthor());
-            return;
-        }
-
-        event.getChannel().asTextChannel().sendMessage(bot.getHelpMessage()).queue();
         recentlySent.put(id, O);
+
+        if (bot.getNonSupportChannelIds().contains(message.getChannelIdLong())) {
+            bot.sendSupportChannelRedirect(channel, message.getAuthor());
+        } else {
+            channel.sendMessage(bot.getHelpMessage()).queue();
+        }
     }
 }

@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.viaversion.eduard.command.MemoryCommand;
 import com.viaversion.eduard.command.MessageCommand;
+import com.viaversion.eduard.command.ReloadMessagesCommand;
 import com.viaversion.eduard.command.ScanDumpsCommand;
 import com.viaversion.eduard.command.SetVersionCommand;
 import com.viaversion.eduard.command.base.CommandHandler;
@@ -20,6 +21,8 @@ import com.viaversion.eduard.listener.SupportMessageListener;
 import com.viaversion.eduard.util.SupportMessage;
 import com.viaversion.eduard.util.Version;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,6 +44,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.apache.commons.io.IOUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ViaEduardBot {
@@ -58,6 +62,7 @@ public final class ViaEduardBot {
     private long linksChannelId;
     private long staffRoleId;
     private Set<Long> nonSupportChannelIds;
+    private String messageUrl;
     private String[] trackedBranches;
     private String privateHelpMessage;
     private String helpMessage;
@@ -112,6 +117,9 @@ public final class ViaEduardBot {
             .addOption(OptionType.STRING, "version", "Release version to set", true)
             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
             .setGuildOnly(true), new SetVersionCommand(this));
+        registerCommand(guild.upsertCommand("reloadmessages", "Reload the support messages")
+            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
+            .setGuildOnly(true), new ReloadMessagesCommand(this));
         //registerCommand(guild.upsertCommand("sethelpmessage", "Set the contents of a help message")
         //        .addOption(OptionType.NUMBER, "message", "Message ID to get the contents of", true)
         //        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
@@ -146,11 +154,12 @@ public final class ViaEduardBot {
             .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         staffRoleId = object.getAsJsonPrimitive("staff-role").getAsLong();
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
+        messageUrl = object.getAsJsonPrimitive("message-url").getAsString();
         return object;
     }
 
-    private void loadMessages() throws IOException {
-        final JsonObject object = loadFile("messages.json");
+    public void loadMessages() throws IOException {
+        final JsonObject object = loadFile(URI.create(messageUrl));
         final JsonArray array = object.getAsJsonArray("messages");
         for (final JsonElement element : array) {
             final JsonObject message = element.getAsJsonObject();
@@ -181,6 +190,10 @@ public final class ViaEduardBot {
 
             supportMessages.add(new SupportMessage(commands, messages));
         }
+    }
+
+    private JsonObject loadFile(final URI uri) throws IOException {
+        return GSON.fromJson(IOUtils.toString(uri, StandardCharsets.UTF_8), JsonObject.class);
     }
 
     private JsonObject loadFile(final String name) throws IOException {

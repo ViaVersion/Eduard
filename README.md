@@ -1,5 +1,5 @@
 # Eduard
-A Discord bot used to manage the ViaVersion discord server.
+A Discord bot used to manage the ViaVersion Discord server.
 
 ## Features
 - Print information about a ViaVersion dump url.
@@ -34,5 +34,3 @@ The configuration file is located at `src/main/resources/config.yml`. It contain
 
 ## License
 This project is licensed under the [GNU Public License v3](LICENSE).
-
-This excludes parts of the project that are not made by us, these are marked and all rights belong to their respective owners.

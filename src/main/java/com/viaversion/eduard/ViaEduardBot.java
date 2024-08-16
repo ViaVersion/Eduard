@@ -51,6 +51,7 @@ public final class ViaEduardBot {
     private final List<SupportMessage> supportMessages = new ArrayList<>();
     private final JDA jda;
     private final Guild guild;
+    private long serverId;
     private long botChannelId;
     private long pluginSupportChannelId;
     private long modSupportChannelId;
@@ -95,7 +96,7 @@ public final class ViaEduardBot {
             throw new RuntimeException(e);
         }
 
-        guild = jda.getGuildById(316206679014244363L);
+        guild = jda.getGuildById(serverId);
 
         registerCommand(guild.upsertCommand("message", "Send a message into a channel")
             .addOption(OptionType.CHANNEL, "channel", "Channel to send the message in", true)
@@ -138,6 +139,7 @@ public final class ViaEduardBot {
             trackedBranches[i] = trackedBranchesArray.get(i).getAsString();
         }
 
+        serverId = object.getAsJsonPrimitive("server-id").getAsLong();
         pluginSupportChannelId = object.getAsJsonPrimitive("plugin-support-channel").getAsLong();
         modSupportChannelId = object.getAsJsonPrimitive("mod-support-channel").getAsLong();
         proxySupportChannelId = object.getAsJsonPrimitive("proxy-support-channel").getAsLong();

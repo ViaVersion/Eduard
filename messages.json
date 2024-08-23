@@ -237,6 +237,13 @@
         "network"
       ],
       "message": "`Network protocol error` means you have a plugin sending bad data, usually scoreboard/tablist related. TAB for example has already fixed this some time ago in their latest version.\n\nThis was already broken before, but \"only\" printed an error in the client's console. Now they will forcefully disconnect themselves. You can temporarily (!) toggle the system property/startup flag `viaversion.strict-error-handling1_20_5` to make the client ignore the errors again, but this will not work in 1.21 anymore"
+    },
+    {
+      "commands": [
+        "geyser",
+        "bedrock"
+      ],
+      "message": "You only need ViaVersion on Geyser servers if you're not on the latest Minecraft: Java Edition version. Connection issues with Bedrock players should be troubleshooted using <https://wiki.geysermc.org/> and <https://discord.gg/geysermc>."
     }
   ]
 }

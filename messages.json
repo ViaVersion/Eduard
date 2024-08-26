@@ -204,9 +204,10 @@
     {
       "commands": [
         "java8",
+        "java16",
         "unsupported"
       ],
-      "message": "ViaVersion for Minecraft 1.21 (v5.0.0+) requires **Java 17**. **If you weren't able to update to newer Java versions**, you can use the Java 8 compatibility builds we provide:\n\nViaVersion - <https://ci.viaversion.com/job/ViaVersion-Java8/>\nViaBackwards - <https://ci.viaversion.com/view/ViaBackwards/job/ViaBackwards-Java8/>\nViaRewind - <https://ci.viaversion.com/view/ViaRewind/job/ViaRewind-Java8/>\n\nYou should not make yourself depend on these *too* much, they will generally **only be updated on releases**!"
+      "message": "ViaVersion for Minecraft 1.21 (v5.0.0+) requires **Java 17**. **If you weren't able to update to newer Java versions**, you can use the Java 8 - 16 compatibility builds we provide:\n\nViaVersion - <https://ci.viaversion.com/job/ViaVersion-Java8/>\nViaBackwards - <https://ci.viaversion.com/view/ViaBackwards/job/ViaBackwards-Java8/>\nViaRewind - <https://ci.viaversion.com/view/ViaRewind/job/ViaRewind-Java8/>\n\nYou should not make yourself depend on these *too* much, they will generally **only be updated on releases**!"
     },
     {
       "commands": [

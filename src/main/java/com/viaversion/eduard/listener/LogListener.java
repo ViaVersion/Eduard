@@ -3,6 +3,7 @@ package com.viaversion.eduard.listener;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.viaversion.eduard.ViaEduardBot;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -12,8 +13,11 @@ import java.time.Duration;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.viaversion.eduard.util.EmbedMessageUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -42,12 +46,13 @@ public final class LogListener extends ListenerAdapter {
 
         String data = event.getMessage().getContentRaw();
         Matcher matcher = URL_PATTERN.matcher(data);
-        StringBuilder output = new StringBuilder();
+        String match = null;
+        JsonObject athenaOutput = null;
 
         while (matcher.find()) {
             int matchStart = matcher.start();
             int matchEnd = matcher.end();
-            String match = data.substring(matchStart, matchEnd);
+            match = data.substring(matchStart, matchEnd);
 
             // Clean up the url
             if (match.startsWith("(") && match.endsWith(")")) {
@@ -68,27 +73,53 @@ public final class LogListener extends ListenerAdapter {
                 .timeout(Duration.ofSeconds(2))
                 .build();
             try {
-                sendRequest(request, output, match);
+                athenaOutput = sendRequest(request);
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
                 break;
             }
         }
 
-        if (output.length() > 0) {
-            bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId()).sendMessage(event.getMessage().getJumpUrl() + output).queue();
+        //check for logs in message if no links are found
+        if (match == null && data.length() >= 500) {
+            HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(data))
+                .uri(URI.create("https://athena.viaversion.workers.dev/v0/analyze/raw"))
+                .header("Content-Type", "application/json").header("User-Agent", "Eduard")
+                .timeout(Duration.ofSeconds(2))
+                .build();
+            try {
+                athenaOutput = sendRequest(request);
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (athenaOutput != null) {
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            if (match != null) {
+                embedBuilder.setTitle("Log Analysis for " + match, match);
+            } else {
+                embedBuilder.setTitle("Log Analysis");
+            }
+            embedBuilder.setColor(5789951);
+            embedBuilder.setAuthor("Athena", "https://github.com/Jo0001/Athena");
+            embedBuilder.setThumbnail("https://repository-images.githubusercontent.com/828279767/81e69723-3bce-4d7e-92c4-a1dbcbf4cbb4");
+            embedBuilder.addField("containsVia", athenaOutput.get("containsVia").getAsString(), false);
+            athenaOutput.getAsJsonArray("detections").forEach(detection -> {
+                JsonObject detectionObject = detection.getAsJsonObject();
+                embedBuilder.addField(detectionObject.get("type").getAsString(), detectionObject.get("message").getAsString(), false);
+            });
+            bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId()).sendMessageEmbeds(embedBuilder.build()).setMessageReference(event.getMessage()).queue();
             event.getMessage().addReaction(Emoji.fromUnicode("U+1FAB5")).queue();
         }
     }
 
-    private void sendRequest(HttpRequest request, StringBuilder output, String match) throws IOException, InterruptedException {
+    private JsonObject sendRequest(HttpRequest request) throws IOException, InterruptedException {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
-            JsonObject object = ViaEduardBot.GSON.fromJson(response.body(), JsonObject.class);
-            JsonArray tags = object.getAsJsonArray("tags");
-            if (!tags.isEmpty()) {
-                output.append(match).append(' ').append(object).append('\n');
-            }
+            return ViaEduardBot.GSON.fromJson(response.body(), JsonObject.class);
         }
+        return null;
     }
 }

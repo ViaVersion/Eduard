@@ -1,6 +1,7 @@
 package com.viaversion.eduard.listener;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.viaversion.eduard.ViaEduardBot;
 import java.io.IOException;
@@ -12,16 +13,22 @@ import java.time.Duration;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class LogListener extends ListenerAdapter {
     private static final List<String> BLACKLIST = List.of("https://ci.viaversion.com", "https://dump.viaversion.com", "https://github.com", "https://modrinth.com", "https://hangar.papermc.io", "https://viaversion.com");
     private static final Pattern URL_PATTERN = Pattern.compile("\\(?\\bhttps://[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]"); // https://blog.codinghorror.com/the-problem-with-urls/
+    private static final UnicodeEmoji LOG_EMOJI = Emoji.fromUnicode("U+1FAB5");
+    private static final UnicodeEmoji CHECKMARK = Emoji.fromUnicode("U+2705");
+    private static final UnicodeEmoji CROSSMARK = Emoji.fromUnicode("U+274C");
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ViaEduardBot bot;
 
@@ -42,12 +49,13 @@ public final class LogListener extends ListenerAdapter {
 
         String data = event.getMessage().getContentRaw();
         Matcher matcher = URL_PATTERN.matcher(data);
-        StringBuilder output = new StringBuilder();
+        String match = null;
+        JsonObject athenaOutput = null;
 
         while (matcher.find()) {
             int matchStart = matcher.start();
             int matchEnd = matcher.end();
-            String match = data.substring(matchStart, matchEnd);
+            match = data.substring(matchStart, matchEnd);
 
             // Clean up the url
             if (match.startsWith("(") && match.endsWith(")")) {
@@ -61,34 +69,69 @@ public final class LogListener extends ListenerAdapter {
 
             JsonObject body = new JsonObject();
             body.addProperty("url", match);
-            HttpRequest request = HttpRequest.newBuilder()
-                .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-                .uri(URI.create("https://athena.viaversion.workers.dev/v0/analyze/url"))
-                .header("Content-Type", "application/json").header("User-Agent", "Eduard")
-                .timeout(Duration.ofSeconds(2))
-                .build();
             try {
-                sendRequest(request, output, match);
+                athenaOutput = sendRequest(body.toString(), "url");
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
                 break;
             }
         }
 
-        if (output.length() > 0) {
-            bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId()).sendMessage(event.getMessage().getJumpUrl() + output).queue();
-            event.getMessage().addReaction(Emoji.fromUnicode("U+1FAB5")).queue();
+        // Check for logs in message if no links are found
+        if (match == null && data.length() >= 500) {
+            try {
+                athenaOutput = sendRequest(data, "raw");
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (athenaOutput != null) {
+            UnicodeEmoji containsVia = athenaOutput.get("containsVia").getAsBoolean() ? CHECKMARK : CROSSMARK;
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setColor(5789951)
+                .setAuthor("Athena", "https://github.com/Jo0001/Athena")
+                .addField("Contains ViaVersion", containsVia.getFormatted(), true);
+
+            if (match != null) {
+                embedBuilder.setTitle("Log Analysis for " + match, match);
+            } else {
+                embedBuilder.setTitle("Log Analysis");
+            }
+
+            JsonArray detections = athenaOutput.getAsJsonArray("detections");
+            for (JsonElement detection : detections) {
+                JsonObject detectionObject = detection.getAsJsonObject();
+                String type = detectionObject.get("type").getAsString();
+                String message = detectionObject.get("message").getAsString();
+                embedBuilder.addField(type, message, false);
+            }
+
+            bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId())
+                .sendMessageEmbeds(embedBuilder.build())
+                .setMessageReference(event.getMessage())
+                .mentionRepliedUser(!detections.isEmpty()).queue();
+            event.getMessage().addReaction(LOG_EMOJI).queue();
         }
     }
 
-    private void sendRequest(HttpRequest request, StringBuilder output, String match) throws IOException, InterruptedException {
+    @Nullable
+    private JsonObject sendRequest(String data, String type) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+            .POST(HttpRequest.BodyPublishers.ofString(data))
+            .uri(URI.create("https://athena.viaversion.workers.dev/v0/analyze/" + type))
+            .header("Content-Type", "application/json").header("User-Agent", "Eduard")
+            .timeout(Duration.ofSeconds(2))
+            .build();
+        return sendRequest(request);
+    }
+
+    @Nullable
+    private JsonObject sendRequest(HttpRequest request) throws IOException, InterruptedException {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
-            JsonObject object = ViaEduardBot.GSON.fromJson(response.body(), JsonObject.class);
-            JsonArray tags = object.getAsJsonArray("tags");
-            if (!tags.isEmpty()) {
-                output.append(match).append(' ').append(object).append('\n');
-            }
+            return ViaEduardBot.GSON.fromJson(response.body(), JsonObject.class);
         }
+        return null;
     }
 }

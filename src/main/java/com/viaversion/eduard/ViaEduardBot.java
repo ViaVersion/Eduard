@@ -20,6 +20,7 @@ import com.viaversion.eduard.listener.SlashCommandListener;
 import com.viaversion.eduard.listener.SupportMessageListener;
 import com.viaversion.eduard.util.SupportMessage;
 import com.viaversion.eduard.util.Version;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class ViaEduardBot {
 
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final boolean USE_LOCAL_MESSAGES = false;
     private final Map<String, Version> latestReleases = new HashMap<>();
     private final Map<String, CommandHandler> commands = new HashMap<>();
     private final List<SupportMessage> supportMessages = new ArrayList<>();
@@ -161,7 +163,7 @@ public final class ViaEduardBot {
     }
 
     public void loadMessages() throws IOException {
-        final JsonObject object = loadFile(URI.create(messageUrl));
+        final JsonObject object = USE_LOCAL_MESSAGES ? loadFile("messages.json") : loadFile(URI.create(messageUrl));
         final JsonArray array = object.getAsJsonArray("messages");
         for (final JsonElement element : array) {
             final JsonObject message = element.getAsJsonObject();
@@ -199,7 +201,9 @@ public final class ViaEduardBot {
     }
 
     private JsonObject loadFile(final String name) throws IOException {
-        return GSON.fromJson(Files.newBufferedReader(Path.of(name)), JsonObject.class);
+        try (final BufferedReader reader = Files.newBufferedReader(Path.of(name))) {
+            return GSON.fromJson(reader, JsonObject.class);
+        }
     }
 
     public void sendSupportChannelRedirect(final MessageChannel channel, final User user) {

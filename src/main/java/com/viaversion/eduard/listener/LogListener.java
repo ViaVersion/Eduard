@@ -50,7 +50,6 @@ public final class LogListener extends ListenerAdapter {
         String data = event.getMessage().getContentRaw();
         Matcher matcher = URL_PATTERN.matcher(data);
         String match = null;
-        JsonObject athenaOutput = null;
 
         while (matcher.find()) {
             int matchStart = matcher.start();
@@ -70,7 +69,7 @@ public final class LogListener extends ListenerAdapter {
             JsonObject body = new JsonObject();
             body.addProperty("url", match);
             try {
-                athenaOutput = sendRequest(body.toString(), "url");
+                createOutput(event, match, sendRequest(body.toString(), "url"));
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
                 break;
@@ -80,39 +79,39 @@ public final class LogListener extends ListenerAdapter {
         // Check for logs in message if no links are found
         if (match == null && data.length() >= 500) {
             try {
-                athenaOutput = sendRequest(data, "raw");
+                createOutput(event, match, sendRequest(data, "raw"));
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
 
-        if (athenaOutput != null) {
-            UnicodeEmoji containsVia = athenaOutput.get("containsVia").getAsBoolean() ? CHECKMARK : CROSSMARK;
-            EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setColor(5789951)
-                .setAuthor("Athena", "https://github.com/Jo0001/Athena")
-                .addField("Contains ViaVersion", containsVia.getFormatted(), true);
+    private void createOutput(MessageReceivedEvent event, String match, JsonObject athenaData) {
+        UnicodeEmoji containsVia = athenaData.get("containsVia").getAsBoolean() ? CHECKMARK : CROSSMARK;
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+            .setColor(5789951)
+            .setAuthor("Athena", "https://github.com/Jo0001/Athena")
+            .addField("Contains ViaVersion", containsVia.getFormatted(), true);
 
-            if (match != null) {
-                embedBuilder.setTitle("Log Analysis for " + match, match);
-            } else {
-                embedBuilder.setTitle("Log Analysis");
-            }
-
-            JsonArray detections = athenaOutput.getAsJsonArray("detections");
-            for (JsonElement detection : detections) {
-                JsonObject detectionObject = detection.getAsJsonObject();
-                String type = detectionObject.get("type").getAsString();
-                String message = detectionObject.get("message").getAsString();
-                embedBuilder.addField(type, message, false);
-            }
-
-            bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId())
-                .sendMessageEmbeds(embedBuilder.build())
-                .setMessageReference(event.getMessage())
-                .mentionRepliedUser(!detections.isEmpty()).queue();
-            event.getMessage().addReaction(LOG_EMOJI).queue();
+        if (match != null) {
+            embedBuilder.setTitle("Log Analysis for " + match, match);
+        } else {
+            embedBuilder.setTitle("Log Analysis");
         }
+
+        JsonArray detections = athenaData.getAsJsonArray("detections");
+        for (JsonElement detection : detections) {
+            JsonObject detectionObject = detection.getAsJsonObject();
+            String type = detectionObject.get("type").getAsString();
+            String message = detectionObject.get("message").getAsString();
+            embedBuilder.addField(type, message, false);
+        }
+
+        bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId())
+            .sendMessageEmbeds(embedBuilder.build())
+            .setMessageReference(event.getMessage())
+            .mentionRepliedUser(!detections.isEmpty()).queue();
+        event.getMessage().addReaction(LOG_EMOJI).queue();
     }
 
     @Nullable

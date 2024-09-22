@@ -15,7 +15,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -33,10 +40,12 @@ public final class DumpMessageListener extends ListenerAdapter {
 
     private static final Object O = new Object();
     private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind", "viarewind-common", "ViaLegacy", "ViaAprilFools"};
+    private static final List<String> PROXYPLATFORMS = List.of("Velocity", "BungeeCord", "Waterfall");
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
     private static final String PLATFORM_FORMAT = "Platform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
     private final ViaEduardBot bot;
+    private final HttpClient httpClient = HttpClient.newHttpClient();
 
     public DumpMessageListener(final ViaEduardBot bot) {
         this.bot = bot;
@@ -223,6 +232,24 @@ public final class DumpMessageListener extends ListenerAdapter {
                     EmbedMessageUtil.sendMessage(message.getChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#" + bot.getLinksChannelId() + "> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
                 }
             }
+        }
+
+        try {
+            if (PROXYPLATFORMS.stream().anyMatch(platformName::equalsIgnoreCase)) {
+                HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://athena.viaversion.workers.dev/v0/proxy/difference?platform=" + platformName + "&platformstring=" + URLEncoder.encode(versionInfo.getAsJsonPrimitive("platformVersion").getAsString(), StandardCharsets.UTF_8)))
+                    .header("Content-Type", "application/json").header("User-Agent", "Eduard")
+                    .timeout(Duration.ofSeconds(1))
+                    .build();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    int behind = Integer.parseInt(response.body());
+                    if (behind > 0) {
+                        EmbedMessageUtil.sendMessage(message.getChannel(), "**Your proxy (" + platformName + ") is " + behind + " builds behind. Please update it to its latest version**", Color.RED);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
         }
 
         // Send message to user to update outdated plugins

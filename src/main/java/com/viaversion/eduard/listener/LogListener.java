@@ -15,7 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -26,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 public final class LogListener extends ListenerAdapter {
     private static final List<String> BLACKLIST = List.of("https://ci.viaversion.com", "https://dump.viaversion.com", "https://github.com", "https://modrinth.com", "https://hangar.papermc.io", "https://viaversion.com");
     private static final Pattern URL_PATTERN = Pattern.compile("\\(?\\bhttps://[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]"); // https://blog.codinghorror.com/the-problem-with-urls/
-    private static final UnicodeEmoji LOG_EMOJI = Emoji.fromUnicode("U+1FAB5");
     private static final UnicodeEmoji CHECKMARK = Emoji.fromUnicode("U+2705");
     private static final UnicodeEmoji CROSSMARK = Emoji.fromUnicode("U+274C");
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -87,11 +85,18 @@ public final class LogListener extends ListenerAdapter {
     }
 
     private void createOutput(MessageReceivedEvent event, String match, JsonObject athenaData) {
+        if (athenaData == null) {
+            return;
+        }
+        JsonArray detections = athenaData.getAsJsonArray("detections");
+        if (detections.isEmpty()) {
+            return;
+        }
         UnicodeEmoji containsVia = athenaData.get("containsVia").getAsBoolean() ? CHECKMARK : CROSSMARK;
         EmbedBuilder embedBuilder = new EmbedBuilder()
             .setColor(5789951)
             .setAuthor("Athena", "https://github.com/Jo0001/Athena")
-            .addField("Contains ViaVersion", containsVia.getFormatted(), true);
+            .setFooter("Contains ViaVersion " + containsVia.getFormatted());
 
         if (match != null) {
             embedBuilder.setTitle("Log Analysis for " + match, match);
@@ -99,19 +104,13 @@ public final class LogListener extends ListenerAdapter {
             embedBuilder.setTitle("Log Analysis");
         }
 
-        JsonArray detections = athenaData.getAsJsonArray("detections");
         for (JsonElement detection : detections) {
             JsonObject detectionObject = detection.getAsJsonObject();
             String type = detectionObject.get("type").getAsString();
             String message = detectionObject.get("message").getAsString();
             embedBuilder.addField(type, message, false);
         }
-
-        bot.getGuild().getChannelById(TextChannel.class, bot.getBotChannelId())
-            .sendMessageEmbeds(embedBuilder.build())
-            .setMessageReference(event.getMessage())
-            .mentionRepliedUser(!detections.isEmpty()).queue();
-        event.getMessage().addReaction(LOG_EMOJI).queue();
+        event.getGuildChannel().sendMessageEmbeds(embedBuilder.build()).setMessageReference(event.getMessage()).queue();
     }
 
     @Nullable

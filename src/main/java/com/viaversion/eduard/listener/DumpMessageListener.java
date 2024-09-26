@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class DumpMessageListener extends ListenerAdapter {
 
@@ -129,16 +130,18 @@ public final class DumpMessageListener extends ListenerAdapter {
             EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
             scanCompareResults(message, Collections.singleton(result), mod ? "mod" : "proxy");
             return;
-        } else if (platformDump.has("mods")) { // Special handling for older ViaFabricPlus versions
+        }
+        if (platformDump.has("mods")) { // Special handling for older ViaFabricPlus versions
             final JsonArray mods = platformDump.getAsJsonArray("mods");
-            for (JsonElement mod : mods) {
+            for (final JsonElement mod : mods) {
                 if (!mod.isJsonObject()) {
                     continue;
                 }
-                if (mod.getAsJsonObject().getAsJsonPrimitive("id").equals("viafabricplus")) {
+
+                if (mod.getAsJsonObject().getAsJsonPrimitive("id").getAsString().equals("viafabricplus")) {
                     final String version = mod.getAsJsonObject().getAsJsonPrimitive("version").getAsString();
 
-                    final CompareResult result = compareToRemote(PLATFORM_FORMAT, "ViaFabricPlus", new Version(version), "");
+                    final CompareResult result = compareToRemote(PLATFORM_FORMAT, "ViaFabricPlus", new Version(version), null);
                     EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
                     scanCompareResults(message, Collections.singleton(result), "mod");
                     return;
@@ -265,13 +268,17 @@ public final class DumpMessageListener extends ListenerAdapter {
         return compareToRemote(FORMAT, name, version, commitData);
     }
 
-    private CompareResult compareToRemote(final String format, final String name, final Version version, final String commitData) {
+    private CompareResult compareToRemote(final String format, final String name, final Version version, @Nullable final String commitData) {
         final String versionInfo = String.format(format, name, version);
         final Version latestRelease = bot.getLatestRelease(name);
         if (version.equals(latestRelease)) {
             return new CompareResult(name, versionInfo, Color.GREEN, VersionStatus.UPDATED_RELEASE);
         } else if (version.compareTo(latestRelease) < 0) {
             return new CompareResult(name, "**Your " + name + " is outdated!**\n" + versionInfo, Color.RED, VersionStatus.RADIOACTIVE);
+        }
+
+        if (commitData == null) {
+            return new CompareResult(name, "**Unknown version. Snapshot or fork?**\n" + versionInfo, Color.MAGENTA, VersionStatus.UNKNOWN);
         }
 
         final String commit = commitData.split(":")[1];
@@ -299,18 +306,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
     }
 
-    private static class CompareResult {
-        private final String pluginName;
-        private final String message;
-        private final Color color;
-        private final VersionStatus status;
-
-        public CompareResult(final String pluginName, final String message, final Color color, final VersionStatus status) {
-            this.pluginName = pluginName;
-            this.message = message;
-            this.color = color;
-            this.status = status;
-        }
+    private record CompareResult(String pluginName, String message, Color color, VersionStatus status) {
     }
 
     private enum VersionStatus {

@@ -219,26 +219,24 @@ public class ErrorHelper extends ListenerAdapter {
             .replace("”", "\"");
     }
 
-    public enum ErrorContainer {
+    private enum ErrorContainer {
         FILE,
         TEXT,
         IMAGE
     }
 
-    public static class ErrorEntry {
+    private record ErrorEntry(String name, List<String> triggers, String response,
+                              int requiredConfidence, EnumSet<ErrorContainer> containers) {
         private static final double MIN_LENGTH = 0.8D;
-        private final String name;
-        private final List<String> cleanedTriggers;
-        private final String response;
-        private final int requiredConfidence;
-        private final EnumSet<ErrorContainer> containers;
 
         ErrorEntry(final String name, final List<String> triggers, final String response, final int requiredConfidence, final Collection<ErrorContainer> containers) {
-            this.name = name;
-            this.cleanedTriggers = triggers.stream().map(ErrorHelper::cleanString).collect(Collectors.toList());
-            this.response = response;
-            this.requiredConfidence = requiredConfidence;
-            this.containers = EnumSet.copyOf(containers);
+            this(
+                name,
+                triggers.stream().map(ErrorHelper::cleanString).collect(Collectors.toList()),
+                response,
+                requiredConfidence,
+                containers.stream().collect(Collectors.toCollection(() -> EnumSet.noneOf(ErrorContainer.class)))
+            );
         }
 
         Result test(final String error, final ErrorContainer errorContainer) {
@@ -248,7 +246,7 @@ public class ErrorHelper extends ListenerAdapter {
 
             int highestPartialRatio = 0;
             int highestWeightedRatio = 0;
-            for (final String cleanedTrigger : cleanedTriggers) {
+            for (final String cleanedTrigger : triggers) {
                 if (error.length() < cleanedTrigger.length() * MIN_LENGTH) {
                     return Result.NONE;
                 }
@@ -264,42 +262,9 @@ public class ErrorHelper extends ListenerAdapter {
             }
             return new Result(true, highestPartialRatio, highestWeightedRatio);
         }
-
-        public String name() {
-            return name;
-        }
-
-        public String response() {
-            return this.response;
-        }
-
-        public int requiredConfidence() {
-            return requiredConfidence;
-        }
     }
 
-    public static final class Result {
-        private static final Result NONE = new Result(false, 0, 0);
-        private final boolean triggered;
-        private final int highestPartialRatio;
-        private final int highestWeightedRatio;
-
-        Result(final boolean triggered, final int highestPartialRatio, final int highestWeightedRatio) {
-            this.triggered = triggered;
-            this.highestPartialRatio = highestPartialRatio;
-            this.highestWeightedRatio = highestWeightedRatio;
-        }
-
-        public boolean triggered() {
-            return triggered;
-        }
-
-        public int highestPartialRatio() {
-            return highestPartialRatio;
-        }
-
-        public int highestWeightedRatio() {
-            return highestWeightedRatio;
-        }
+    private record Result(boolean triggered, int highestPartialRatio, int highestWeightedRatio) {
+        static final Result NONE = new Result(false, 0, 0);
     }
 }

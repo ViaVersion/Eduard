@@ -10,7 +10,7 @@
     <version>1.0.0</version>
 
     <properties>
-        <plugin.java>11</plugin.java>
+        <plugin.java>17</plugin.java>
         <maven.compiler.target>${plugin.java}</maven.compiler.target>
         <maven.compiler.source>${plugin.java}</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.1.0</version>
+            <version>5.1.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

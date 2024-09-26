@@ -2,6 +2,7 @@ package com.viaversion.eduard.listener;
 
 import com.viaversion.eduard.ViaEduardBot;
 import com.viaversion.eduard.util.SupportMessage;
+import java.util.Locale;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -16,21 +17,23 @@ public final class SupportMessageListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
         if (!event.isFromGuild() || !event.isFromType(ChannelType.TEXT) || event.isWebhookMessage() || event.getAuthor().isBot()) {
             return;
         }
+
         String line = event.getMessage().getContentRaw();
         if (!line.startsWith("?")) {
             // Only listen to support commands
             return;
         }
+
         line = line.substring(1);
         final String[] args = line.split(" ");
-        final String command = args[0].toLowerCase();
+        final String command = args[0].toLowerCase(Locale.ROOT);
 
         for (SupportMessage message : bot.getSupportMessages()) {
-            if (message.getCommands().contains(command)) {
+            if (message.commands().contains(command)) {
                 SupportMessage.Channel channel = SupportMessage.Channel.byId(bot, event.getChannel().getIdLong());
                 if (args.length > 1) {
                     // Allow to override channel, e.g. ?dump proxy will show the proxy-support dump message in any channel
@@ -39,7 +42,7 @@ public final class SupportMessageListener extends ListenerAdapter {
                 }
                 // If command isn't executed in one of the support channels, just use the plugin-support message
                 if (channel == null) {
-                    event.getChannel().sendMessage(message.getMessages().get(0).getMessage()).queue();
+                    event.getChannel().sendMessage(message.messages().get(0).message()).queue();
                     return;
                 }
                 message.send(event.getChannel(), channel);

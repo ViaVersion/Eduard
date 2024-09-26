@@ -27,6 +27,7 @@ public final class LogListener extends ListenerAdapter {
     private static final Pattern URL_PATTERN = Pattern.compile("\\(?\\bhttps://[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]"); // https://blog.codinghorror.com/the-problem-with-urls/
     private static final UnicodeEmoji CHECKMARK = Emoji.fromUnicode("U+2705");
     private static final UnicodeEmoji CROSSMARK = Emoji.fromUnicode("U+274C");
+    private static final int MAX_URL_CHECKS = 3;
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ViaEduardBot bot;
 
@@ -49,7 +50,8 @@ public final class LogListener extends ListenerAdapter {
         Matcher matcher = URL_PATTERN.matcher(data);
         String match = null;
 
-        while (matcher.find()) {
+        int urlChecks = 0;
+        while (matcher.find() && urlChecks++ < MAX_URL_CHECKS) {
             int matchStart = matcher.start();
             int matchEnd = matcher.end();
             match = data.substring(matchStart, matchEnd);
@@ -88,13 +90,15 @@ public final class LogListener extends ListenerAdapter {
         if (athenaData == null) {
             return;
         }
+
         JsonArray detections = athenaData.getAsJsonArray("detections");
         if (detections.isEmpty()) {
             return;
         }
+
         UnicodeEmoji containsVia = athenaData.get("containsVia").getAsBoolean() ? CHECKMARK : CROSSMARK;
         EmbedBuilder embedBuilder = new EmbedBuilder()
-            .setColor(5789951)
+            .setColor(0x5858ff)
             .setAuthor("Athena", "https://github.com/Jo0001/Athena")
             .setFooter("Contains ViaVersion " + containsVia.getFormatted());
 
@@ -110,7 +114,10 @@ public final class LogListener extends ListenerAdapter {
             String message = detectionObject.get("message").getAsString();
             embedBuilder.addField(type, message, false);
         }
-        event.getGuildChannel().sendMessageEmbeds(embedBuilder.build()).setMessageReference(event.getMessage()).queue();
+
+        event.getGuildChannel()
+            .sendMessageEmbeds(embedBuilder.build())
+            .setMessageReference(event.getMessage()).queue();
     }
 
     @Nullable

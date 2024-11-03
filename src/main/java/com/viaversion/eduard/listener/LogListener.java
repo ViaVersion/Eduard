@@ -42,7 +42,7 @@ public final class LogListener extends ListenerAdapter {
         }
 
         long channelId = event.getGuildChannel().getIdLong();
-        if (channelId != bot.getPluginSupportChannelId() && channelId != bot.getBotChannelId()) {
+        if (channelId != bot.getPluginSupportChannelId() && channelId != bot.getBotChannelId() && channelId != bot.getBotSpamChannelId()) {
             return;
         }
 

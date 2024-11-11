@@ -1,11 +1,11 @@
 package com.viaversion.eduard.listener;
 
 import com.viaversion.eduard.ViaEduardBot;
+import java.util.concurrent.TimeUnit;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import java.util.concurrent.TimeUnit;
 
 public class BotSpamListener extends ListenerAdapter {
     private final ViaEduardBot bot;

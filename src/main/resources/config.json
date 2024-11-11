@@ -87,6 +87,18 @@
         "file",
         "image"
       ]
+    },
+    "NoSuchMethodError": {
+      "match-text": [
+        ": java.lang.NoSuchMethodError: '"
+      ],
+      "error-message": "You most likely have outdated plugins, or have mixed release builds of Via* plugins with non-release builds.",
+      "confidence": 80,
+      "from": [
+        "text",
+        "file",
+        "image"
+      ]
     }
   }
 }

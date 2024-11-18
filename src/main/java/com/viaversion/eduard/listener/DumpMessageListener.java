@@ -158,7 +158,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         } else if (platformName.equals("Mohist")) {
             EmbedMessageUtil.sendMessage(message.getChannel(), "Hybrid servers like Mohist are not supported ", Color.RED);
         } else if (platformName.equals("Leaf")) {
-            EmbedMessageUtil.sendMessage(message.getChannel(), "Leaf is not supported, use paper instead", Color.RED);
+            EmbedMessageUtil.sendMessage(message.getChannel(), "Leaf is not supported, use Paper instead", Color.RED);
         }
 
         final JsonArray plugins = platformDump.getAsJsonArray("plugins");

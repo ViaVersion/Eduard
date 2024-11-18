@@ -155,6 +155,10 @@ public final class DumpMessageListener extends ListenerAdapter {
             message.addReaction(Emoji.fromUnicode("U+1F4A5")).queue(); // Collision/explosion
             EmbedMessageUtil.sendMessage(message.getChannel(), "Yatopia is known to break quite often and is not supported by us. " +
                 "Consider using Paper/Purpur for the best performance without a loss in stability.", Color.RED);
+        } else if (platformName.equals("Mohist")) {
+            EmbedMessageUtil.sendMessage(message.getChannel(), "Hybrid servers like Mohist are not supported ", Color.RED);
+        } else if (platformName.equals("Leaf")) {
+            EmbedMessageUtil.sendMessage(message.getChannel(), "Leaf is not supported, use Paper instead", Color.RED);
         }
 
         final JsonArray plugins = platformDump.getAsJsonArray("plugins");

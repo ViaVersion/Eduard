@@ -238,7 +238,7 @@ public final class DumpMessageListener extends ListenerAdapter {
             if (PROXYPLATFORMS.stream().anyMatch(platformName::equalsIgnoreCase)) {
                 HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://athena.viaversion.workers.dev/v0/proxy/difference?platform=" + platformName + "&platformstring=" + URLEncoder.encode(versionInfo.getAsJsonPrimitive("platformVersion").getAsString(), StandardCharsets.UTF_8)))
-                    .header("Content-Type", "application/json").header("User-Agent", "Eduard")
+                    .header("Content-Type", "application/json").header("User-Agent", "Eduard").header("x-athena-exp", "true")
                     .timeout(Duration.ofSeconds(1))
                     .build();
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());

@@ -51,7 +51,7 @@ public final class LogListener extends ListenerAdapter {
         String match = null;
 
         int urlChecks = 0;
-        while (matcher.find() && urlChecks++ < MAX_URL_CHECKS) {
+        while (matcher.find() && urlChecks < MAX_URL_CHECKS) {
             int matchStart = matcher.start();
             int matchEnd = matcher.end();
             match = data.substring(matchStart, matchEnd);
@@ -66,6 +66,8 @@ public final class LogListener extends ListenerAdapter {
                 continue;
             }
 
+            urlChecks++;
+
             JsonObject body = new JsonObject();
             body.addProperty("url", match);
             try {
@@ -77,7 +79,7 @@ public final class LogListener extends ListenerAdapter {
         }
 
         // Check for logs in message if no links are found
-        if (match == null && data.length() >= 500) {
+        if (match == null && data.length() >= 250) {
             try {
                 createOutput(event, match, sendRequest(data, "raw"));
             } catch (IOException | InterruptedException e) {

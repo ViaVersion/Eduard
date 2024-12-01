@@ -203,7 +203,6 @@ public class ErrorHelper extends ListenerAdapter {
             alreadyTriggered.add(entry);
 
             final String response = entry.response();
-            System.out.println(response);
             message.getChannel().sendMessage(response + " " + message.getAuthor().getAsMention()).queue();
 
             if (sendDebug) {

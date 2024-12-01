@@ -10,7 +10,7 @@
     <version>1.0.0</version>
 
     <properties>
-        <plugin.java>11</plugin.java>
+        <plugin.java>17</plugin.java>
         <maven.compiler.target>${plugin.java}</maven.compiler.target>
         <maven.compiler.source>${plugin.java}</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.1.0</version>
+            <version>5.1.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.3.0-jre</version>
+            <version>33.3.1-jre</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -50,14 +50,14 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.5.8</version>
+            <version>1.5.12</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.11.0</version>
+            <version>5.11.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

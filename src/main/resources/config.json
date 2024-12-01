@@ -2,6 +2,7 @@
   "token": "",
   "server-id": 316206679014244363,
   "bot-channel": 698483428915675186,
+  "bot-spam": 1301842375110295613,
   "plugin-support-channel": 316208160232701955,
   "mod-support-channel": 1112835241271373966,
   "proxy-support-channel": 1112837970844721342,
@@ -81,6 +82,18 @@
       ],
       "error-message": "Your JAR file is broken, either from a failed download or from reloading the server instead of properly restarting.",
       "confidence": 70,
+      "from": [
+        "text",
+        "file",
+        "image"
+      ]
+    },
+    "NoSuchMethodError": {
+      "match-text": [
+        ": java.lang.NoSuchMethodError: '"
+      ],
+      "error-message": "You most likely have outdated plugins, or have mixed release builds of Via* plugins with non-release builds.",
+      "confidence": 80,
       "from": [
         "text",
         "file",

@@ -6,53 +6,23 @@ import java.util.List;
 import java.util.Set;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
-public class SupportMessage {
+public record SupportMessage(Set<String> commands, List<Message> messages) {
 
-    private final Set<String> commands;
-    private final List<Message> messages;
-
-    public SupportMessage(final Set<String> commands, final List<Message> messages) {
+    public SupportMessage {
         Preconditions.checkArgument(!commands.isEmpty(), "commands must not be empty");
         Preconditions.checkArgument(!messages.isEmpty(), "messages must not be empty");
-
-        this.commands = commands;
-        this.messages = messages;
     }
 
     public void send(final MessageChannelUnion messageChannel, final Channel channel) {
         for (final SupportMessage.Message msg : messages) {
-            if (msg.getChannel() == null || channel == msg.getChannel()) {
-                messageChannel.sendMessage(msg.getMessage()).queue();
+            if (msg.channel() == null || channel == msg.channel()) {
+                messageChannel.sendMessage(msg.message()).queue();
                 return;
             }
         }
     }
 
-    public Set<String> getCommands() {
-        return commands;
-    }
-
-    public List<Message> getMessages() {
-        return messages;
-    }
-
-    public static class Message {
-
-        private final Channel channel;
-        private final String message;
-
-        public Message(final Channel channel, final String message) {
-            this.channel = channel;
-            this.message = message;
-        }
-
-        public Channel getChannel() {
-            return channel;
-        }
-
-        public String getMessage() {
-            return message;
-        }
+    public record Message(Channel channel, String message) {
     }
 
     public enum Channel {

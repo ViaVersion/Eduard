@@ -11,6 +11,7 @@ import com.viaversion.eduard.command.ReloadMessagesCommand;
 import com.viaversion.eduard.command.ScanDumpsCommand;
 import com.viaversion.eduard.command.SetVersionCommand;
 import com.viaversion.eduard.command.base.CommandHandler;
+import com.viaversion.eduard.listener.BotSpamListener;
 import com.viaversion.eduard.listener.DumpMessageListener;
 import com.viaversion.eduard.listener.ErrorHelper;
 import com.viaversion.eduard.listener.FileMessageListener;
@@ -59,6 +60,7 @@ public final class ViaEduardBot {
     private final Guild guild;
     private long serverId;
     private long botChannelId;
+    private long botSpamChannelId;
     private long pluginSupportChannelId;
     private long modSupportChannelId;
     private long proxySupportChannelId;
@@ -95,7 +97,8 @@ public final class ViaEduardBot {
             .addEventListeners(new FileMessageListener(this))
             .addEventListeners(new SupportMessageListener(this))
             .addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")))
-            .addEventListeners(new LogListener(this));
+            .addEventListeners(new LogListener(this))
+            .addEventListeners(new BotSpamListener(this));
 
         try {
             jda = builder.build().awaitReady();
@@ -158,6 +161,7 @@ public final class ViaEduardBot {
             .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         staffRoleId = object.getAsJsonPrimitive("staff-role").getAsLong();
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
+        botSpamChannelId = object.getAsJsonPrimitive("bot-spam").getAsLong();
         messageUrl = object.getAsJsonPrimitive("message-url").getAsString();
         return object;
     }
@@ -244,6 +248,10 @@ public final class ViaEduardBot {
 
     public long getBotChannelId() {
         return botChannelId;
+    }
+
+    public long getBotSpamChannelId() {
+        return botSpamChannelId;
     }
 
     public long getPluginSupportChannelId() {

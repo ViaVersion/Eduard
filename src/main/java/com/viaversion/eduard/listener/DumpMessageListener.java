@@ -75,7 +75,7 @@ public final class DumpMessageListener extends ListenerAdapter {
             return;
         }
 
-        line = line.substring(0, 28) + "documents/" + line.substring(28);
+        line = !line.startsWith("raw", 28) ? line.substring(0, 28) + "raw/" + line.substring(28) : line;
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) new URL(line).openConnection();
@@ -107,8 +107,8 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
 
         final String content = contentBuilder.toString();
-        final JsonPrimitive data = ViaEduardBot.GSON.fromJson(content, JsonObject.class).getAsJsonPrimitive("data");
-        final JsonObject object = ViaEduardBot.GSON.fromJson(data.getAsString(), JsonObject.class);
+        //final JsonPrimitive data = ViaEduardBot.GSON.fromJson(content, JsonObject.class).getAsJsonPrimitive("data");
+        final JsonObject object = ViaEduardBot.GSON.fromJson(content, JsonObject.class);
         final JsonObject versionInfo = object.getAsJsonObject("versionInfo");
         final JsonPrimitive implementationVersion = versionInfo.getAsJsonPrimitive("implementationVersion");
         if (implementationVersion == null) {

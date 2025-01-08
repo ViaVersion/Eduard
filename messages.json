@@ -65,7 +65,7 @@
       ],
       "messages": {
         "plugin": "Please run `/viaversion dump` in-game or in your console and copy the link into this channel, it gives us useful information about your server.",
-        "mod": "Please go to the ViaFabricPlus menu and click \"Report issues\" -> \"Create a ViaVersion dump\" and copy the link into this channel, it gives us useful information about your client.",
+        "mod": "Please go to the ViaFabricPlus menu and click `Report issues` -> `Create a ViaVersion dump` and copy the link into this channel, it gives us useful information about your client.",
         "proxy": "Please go to `Advanced` and run `Create ViaVersion dump` and provide us the link."
       }
     },

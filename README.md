@@ -5,7 +5,7 @@ A Discord bot used to manage the ViaVersion Discord server.
 - Print information about a ViaVersion dump url.
 - Support commands for moderators starting with "?" (see [here](https://florianmichael.de/viaversion) for an overview).
 - Automatically detect common messages and respond to them.
-- Integration of [Athena](https://github.com/Jo0001/Athena) for automatic log analysis (WIP).
+- Integration of [Athena](https://github.com/Jo0001/Athena) for automatic log analysis & proxy build check.
 
 ## ViaVersion dump information
 ![Via dump preview.png](.github/images/support-command-preview.png)

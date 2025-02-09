@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.viaversion.eduard.ViaEduardBot;
+import com.viaversion.eduard.util.AthenaHelper;
 import com.viaversion.eduard.util.EmbedMessageUtil;
 import com.viaversion.eduard.util.GitVersionUtil;
 import com.viaversion.eduard.util.Version;
@@ -15,14 +16,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -46,7 +43,7 @@ public final class DumpMessageListener extends ListenerAdapter {
     private static final String PLATFORM_FORMAT = "Platform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
     private final ViaEduardBot bot;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final AthenaHelper athena = new AthenaHelper();
 
     public DumpMessageListener(final ViaEduardBot bot) {
         this.bot = bot;
@@ -243,17 +240,9 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         try {
             if (PROXYPLATFORMS.stream().anyMatch(platformName::equalsIgnoreCase)) {
-                HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://athena.viaversion.workers.dev/v0/proxy/difference?platform=" + platformName + "&platformstring=" + URLEncoder.encode(versionInfo.getAsJsonPrimitive("platformVersion").getAsString(), StandardCharsets.UTF_8)))
-                    .header("Content-Type", "application/json").header("User-Agent", "Eduard").header("x-athena-exp", "true")
-                    .timeout(Duration.ofSeconds(1))
-                    .build();
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() == 200) {
-                    int behind = Integer.parseInt(response.body());
-                    if (behind > 0) {
-                        EmbedMessageUtil.sendMessage(message.getChannel(), "**Your proxy (" + platformName + ") is " + behind + " builds behind. Please update it to its latest version**", Color.RED);
-                    }
+                int behind = athena.sendProxyRequest(platformName, URLEncoder.encode(versionInfo.getAsJsonPrimitive("platformVersion").getAsString(), StandardCharsets.UTF_8));
+                if (behind > 0) {
+                    EmbedMessageUtil.sendMessage(message.getChannel(), "**Your proxy (" + platformName + ") is " + behind + " build(s) behind. Please update it to the latest version**", Color.RED);
                 }
             }
         } catch (Exception ignored) {

@@ -67,6 +67,21 @@ public class AthenaHelper {
     }
 
     @Nullable
+    public int sendProxyRequest(String platformName, String platformVersion) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+
+            .uri(URI.create("https://athena.viaversion.workers.dev/v0/proxy/difference?platform=" + platformName + "&platformstring=" + platformVersion))
+            .header("Content-Type", "application/json").header("User-Agent", "Eduard")
+            .timeout(Duration.ofSeconds(1))
+            .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            return Integer.parseInt(response.body());
+        }
+        return -1;
+    }
+
+    @Nullable
     private JsonObject sendRequest(HttpRequest request) throws IOException, InterruptedException {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {

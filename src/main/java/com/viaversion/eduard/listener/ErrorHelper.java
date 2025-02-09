@@ -45,6 +45,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
+import com.viaversion.eduard.util.AthenaHelper;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
@@ -64,6 +65,7 @@ public class ErrorHelper extends ListenerAdapter {
     private final String tessDataPath = Path.of("tessdata").toAbsolutePath().toString();
     private final boolean enableImageScanning;
     private final ViaEduardBot bot;
+    private final AthenaHelper athena = new AthenaHelper();
 
     public ErrorHelper(final ViaEduardBot bot, final JsonObject object) {
         this.bot = bot;
@@ -118,6 +120,12 @@ public class ErrorHelper extends ListenerAdapter {
                 } catch (final IOException | InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                     continue;
+                }
+
+                try {
+                    athena.createOutput(event, null, athena.sendRequest(content, "raw"));
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
                 }
 
                 if (!handle(message, content, ErrorContainer.FILE, sendDebug, triggered)) {

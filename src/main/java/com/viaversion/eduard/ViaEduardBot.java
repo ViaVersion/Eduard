@@ -212,7 +212,7 @@ public final class ViaEduardBot {
 
     public void sendSupportChannelRedirect(final MessageChannel channel, final User user) {
         channel.sendMessage("Please use one of the support channels for help " + user.getAsMention()
-            + "\n**Pluginsupport** (Paper/Spigot/Velocity...) <#316208160232701955>\n**Modsupport** (Fabric/Forge) <#1112835241271373966>\n**Standalone Appsupport** (VIAaaS/ViaProxy) <#1112837970844721342>").queue();
+            + "\n**Pluginsupport** (Paper/Spigot/Velocity...) <#" + pluginSupportChannelId + ">\n**Modsupport** (Fabric/Forge) <#" + modSupportChannelId + ">\n**Standalone Appsupport** (VIAaaS/ViaProxy) <#" + proxySupportChannelId + ">").queue();
     }
 
     public @Nullable CommandHandler getCommand(final String command) {

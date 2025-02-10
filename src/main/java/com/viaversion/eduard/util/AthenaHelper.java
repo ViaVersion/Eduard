@@ -66,10 +66,8 @@ public class AthenaHelper {
         return sendRequest(request);
     }
 
-    @Nullable
     public int sendProxyRequest(String platformName, String platformVersion) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-
             .uri(URI.create("https://athena.viaversion.workers.dev/v0/proxy/difference?platform=" + platformName + "&platformstring=" + platformVersion))
             .header("Content-Type", "application/json").header("User-Agent", "Eduard")
             .timeout(Duration.ofSeconds(1))

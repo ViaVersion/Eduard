@@ -211,7 +211,13 @@ public final class ViaEduardBot {
     }
 
     public void sendSupportChannelRedirect(final MessageChannel channel, final User user) {
-        channel.sendMessage("Please use one of the support channels for help " + user.getAsMention()).queue();
+        channel.sendMessage("""
+            Please use one of the support channels for help %s
+            **Plugin support** (Paper/Spigot/Velocity...) <#%d>
+            **Mod support** (Fabric/Forge) <#%d>
+            **Standalone App support** (VIAaaS/ViaProxy) <#%d>"""
+            .formatted(user.getAsMention(), pluginSupportChannelId, modSupportChannelId, proxySupportChannelId)
+        ).queue();
     }
 
     public @Nullable CommandHandler getCommand(final String command) {

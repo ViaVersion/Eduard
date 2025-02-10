@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.viaversion.eduard.ViaEduardBot;
+import com.viaversion.eduard.util.AthenaHelper;
 import com.viaversion.eduard.util.EmbedMessageUtil;
 import com.viaversion.eduard.util.GitVersionUtil;
 import com.viaversion.eduard.util.Version;
@@ -16,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -34,10 +38,12 @@ public final class DumpMessageListener extends ListenerAdapter {
 
     private static final Object O = new Object();
     private static final String[] SUBPLATFORMS = {"ViaBackwards", "ViaRewind", "viarewind-common", "ViaLegacy", "ViaAprilFools"};
+    private static final List<String> PROXYPLATFORMS = List.of("Velocity", "BungeeCord", "Waterfall");
     private static final String FORMAT = "Plugin: `%s`\nPlugin version: `%s`";
     private static final String PLATFORM_FORMAT = "Platform: `%s`\nPlatform version: `%s`";
     private final Cache<Long, Object> recentlySent = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).build();
     private final ViaEduardBot bot;
+    private final AthenaHelper athena = new AthenaHelper();
 
     public DumpMessageListener(final ViaEduardBot bot) {
         this.bot = bot;
@@ -230,6 +236,16 @@ public final class DumpMessageListener extends ListenerAdapter {
                     EmbedMessageUtil.sendMessage(message.getChannel(), "It looks like you are missing the ViaBackwards plugin. Please install it from <#" + bot.getLinksChannelId() + "> if you need older versions to join, or delete the ViaRewind plugin.", Color.RED);
                 }
             }
+        }
+
+        try {
+            if (PROXYPLATFORMS.stream().anyMatch(platformName::equalsIgnoreCase)) {
+                int behind = athena.sendProxyRequest(platformName, URLEncoder.encode(versionInfo.getAsJsonPrimitive("platformVersion").getAsString(), StandardCharsets.UTF_8));
+                if (behind > 0) {
+                    EmbedMessageUtil.sendMessage(message.getChannel(), "**Your proxy (" + platformName + ") is " + behind + " build(s) behind. Please update it to the latest version**", Color.RED);
+                }
+            }
+        } catch (Exception ignored) {
         }
 
         // Send message to user to update outdated plugins

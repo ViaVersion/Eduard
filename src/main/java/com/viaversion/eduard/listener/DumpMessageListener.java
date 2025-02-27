@@ -125,8 +125,20 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
 
         final JsonObject platformDump = object.getAsJsonObject("platformDump");
+        final String platformName = versionInfo.getAsJsonPrimitive("platformName").getAsString();
+        final String platformVersion = versionInfo.getAsJsonPrimitive("platformVersion").getAsString();
 
-        // Either ViaProxy or ViaFabricPlus
+        // None sub platforms which need manual handling of the implementation version (ViaFabricPlus, ViaProxy, ViaForge)
+        if (platformName.equals("ViaFabricPlus") || platformName.equals("ViaProxy") || platformName.equals("ViaForge")) {
+            final String implVersion = platformDump.getAsJsonPrimitive("impl_version").getAsString();
+
+            final CompareResult result = compareToRemote(PLATFORM_FORMAT, platformName, new Version(platformVersion), implVersion);
+            EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
+            scanCompareResults(message, Collections.singleton(result), platformName.equals("ViaProxy") ? "proxy" : "mod");
+            return;
+        }
+
+        // Special handling for older ViaFabricPlus/ViaProxy versions
         if (platformDump.has("version") && platformDump.has("impl_version")) {
             final String version = platformDump.getAsJsonPrimitive("version").getAsString();
             final String implVersion = platformDump.getAsJsonPrimitive("impl_version").getAsString();
@@ -137,25 +149,7 @@ public final class DumpMessageListener extends ListenerAdapter {
             scanCompareResults(message, Collections.singleton(result), mod ? "mod" : "proxy");
             return;
         }
-        if (platformDump.has("mods")) { // Special handling for older ViaFabricPlus versions
-            final JsonArray mods = platformDump.getAsJsonArray("mods");
-            for (final JsonElement mod : mods) {
-                if (!mod.isJsonObject()) {
-                    continue;
-                }
 
-                if (mod.getAsJsonObject().getAsJsonPrimitive("id").getAsString().equals("viafabricplus")) {
-                    final String version = mod.getAsJsonObject().getAsJsonPrimitive("version").getAsString();
-
-                    final CompareResult result = compareToRemote(PLATFORM_FORMAT, "ViaFabricPlus", new Version(version), null);
-                    EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
-                    scanCompareResults(message, Collections.singleton(result), "mod");
-                    return;
-                }
-            }
-        }
-
-        final String platformName = versionInfo.getAsJsonPrimitive("platformName").getAsString();
         // Check for the evil
         if (platformName.equals("Yatopia")) {
             message.addReaction(Emoji.fromUnicode("U+1F4A5")).queue(); // Collision/explosion
@@ -202,8 +196,7 @@ public final class DumpMessageListener extends ListenerAdapter {
         final CompareResult compareResult = compareToRemote("ViaVersion", version, implementationVersion.getAsString());
         compareResults.add(compareResult);
         // Append platform data
-        final String s = compareResult.message + "\n" + String.format(PLATFORM_FORMAT, platformName,
-            versionInfo.getAsJsonPrimitive("platformVersion").getAsString());
+        final String s = compareResult.message + "\n" + String.format(PLATFORM_FORMAT, platformName, platformVersion);
         EmbedMessageUtil.sendMessage(message.getChannel(), s, compareResult.color);
 
         // Check for existing subplatforms
@@ -240,7 +233,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
         try {
             if (PROXYPLATFORMS.stream().anyMatch(platformName::equalsIgnoreCase)) {
-                int behind = athena.sendProxyRequest(platformName, URLEncoder.encode(versionInfo.getAsJsonPrimitive("platformVersion").getAsString(), StandardCharsets.UTF_8));
+                int behind = athena.sendProxyRequest(platformName, URLEncoder.encode(platformVersion, StandardCharsets.UTF_8));
                 if (behind > 0) {
                     EmbedMessageUtil.sendMessage(message.getChannel(), "**Your proxy (" + platformName + ") is " + behind + " build(s) behind. Please update it to the latest version**", Color.RED);
                 }

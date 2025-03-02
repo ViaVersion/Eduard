@@ -134,7 +134,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
             final CompareResult result = compareToRemote(PLATFORM_FORMAT, platformName, new Version(platformVersion), implVersion);
             EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
-            scanCompareResults(message, Collections.singleton(result), platformName.equals("ViaProxy") ? "proxy" : "mod");
+            scanCompareResults(message, Collections.singleton(result));
             return;
         }
 
@@ -146,7 +146,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
             final CompareResult result = compareToRemote(PLATFORM_FORMAT, mod ? "ViaFabricPlus" : "ViaProxy", new Version(version), implVersion);
             EmbedMessageUtil.sendMessage(message.getChannel(), result.message, result.color);
-            scanCompareResults(message, Collections.singleton(result), mod ? "mod" : "proxy");
+            scanCompareResults(message, Collections.singleton(result));
             return;
         }
 
@@ -242,10 +242,10 @@ public final class DumpMessageListener extends ListenerAdapter {
         }
 
         // Send message to user to update outdated plugins
-        scanCompareResults(message, compareResults, "plugin");
+        scanCompareResults(message, compareResults);
     }
 
-    private void scanCompareResults(final Message message, final Collection<CompareResult> compareResults, final String platformType) {
+    private void scanCompareResults(final Message message, final Collection<CompareResult> compareResults) {
         // Add Radioactive reaction for heavily outdated plugins/mods
         if (compareResults.stream().anyMatch(result -> result.status == VersionStatus.RADIOACTIVE)) {
             message.addReaction(Emoji.fromUnicode("U+2623")).queue();
@@ -258,12 +258,12 @@ public final class DumpMessageListener extends ListenerAdapter {
                 .collect(Collectors.toList());
             final StringBuilder updateMessage = new StringBuilder();
             if (pluginsToUpdate.size() > 1) {
-                updateMessage.append(platformType).append("s ").append(String.join(", ", pluginsToUpdate.subList(0, pluginsToUpdate.size() - 1)));
+                updateMessage.append(String.join(", ", pluginsToUpdate.subList(0, pluginsToUpdate.size() - 1)));
                 updateMessage.append(" and ").append(pluginsToUpdate.get(pluginsToUpdate.size() - 1));
             } else {
-                updateMessage.append(platformType).append(" ").append(pluginsToUpdate.get(0));
+                updateMessage.append(pluginsToUpdate.get(0));
             }
-            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update the " + updateMessage + " from <#" + bot.getLinksChannelId() + ">, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
+            message.getChannel().sendMessage(message.getAuthor().getAsMention() + " Please update " + updateMessage + " from <#" + bot.getLinksChannelId() + ">, it may fix your issue.\nIf it doesn't, send a new dump to this channel for a human to help you.").queue();
         }
     }
 

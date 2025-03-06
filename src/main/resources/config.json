@@ -18,7 +18,8 @@
     "ViaBackwards": "4.9.2",
     "ViaRewind": "3.0.6",
     "ViaFabricPlus": "3.1.0",
-    "ViaProxy": "3.2.0"
+    "ViaProxy": "3.2.0",
+    "ViaForge": "4.0.0"
   },
   "tracked-branches": [
     "master",

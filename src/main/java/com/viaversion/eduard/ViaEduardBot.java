@@ -69,8 +69,7 @@ public final class ViaEduardBot {
     private long staffRoleId;
     private long maintainerRoleId;
     private String exploitReportMessage;
-    private String exploitReportButton;
-    private String exploitStaffMention;
+    private String exploitMaintainerMention;
     private String exploitDuplicate;
     private String exploitWelcome;
     private Set<Long> nonSupportChannelIds;
@@ -124,6 +123,9 @@ public final class ViaEduardBot {
             .addOption(OptionType.INTEGER, "days", "Days to go back", true)
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
             .setGuildOnly(true), new ScanDumpsCommand(this));
+        registerCommand(guild.upsertCommand("exploitreport", "Sends message to open private threads")
+            .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
+            .setGuildOnly(true), new ExploitReportCommand(this));
         registerCommand(guild.upsertCommand("memory", "Display used and remaining memory of this bot instance")
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MemoryCommand());
         registerCommand(guild.upsertCommand("setversion", "Set the release version for a platform")
@@ -134,9 +136,6 @@ public final class ViaEduardBot {
         registerCommand(guild.upsertCommand("reloadmessages", "Reload the support messages")
             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
             .setGuildOnly(true), new ReloadMessagesCommand(this));
-        registerCommand(guild.upsertCommand("exploitreport", "Sends message to open private threads")
-            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
-            .setGuildOnly(true), new ExploitReportCommand(this));
     }
 
     private void registerCommand(final CommandCreateAction action, final CommandHandler command) {
@@ -169,8 +168,7 @@ public final class ViaEduardBot {
         staffRoleId = object.getAsJsonPrimitive("staff-role").getAsLong();
         maintainerRoleId = object.getAsJsonPrimitive("maintainer-role").getAsLong();
         exploitReportMessage = object.getAsJsonPrimitive("exploit-report-message").getAsString();
-        exploitReportButton = object.getAsJsonPrimitive("exploit-report-button").getAsString();
-        exploitStaffMention = object.getAsJsonPrimitive("exploit-staff-mention").getAsString();
+        exploitMaintainerMention = object.getAsJsonPrimitive("exploit-maintainer-mention").getAsString();
         exploitDuplicate = object.getAsJsonPrimitive("exploit-duplicate").getAsString();
         exploitWelcome = object.getAsJsonPrimitive("exploit-welcome").getAsString();
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
@@ -273,12 +271,8 @@ public final class ViaEduardBot {
         return exploitReportMessage;
     }
 
-    public String getExploitReportButton() {
-        return exploitReportButton;
-    }
-
-    public String getExploitStaffMention() {
-        return exploitStaffMention;
+    public String getExploitMaintainerMention() {
+        return exploitMaintainerMention;
     }
 
     public String getExploitDuplicate() {

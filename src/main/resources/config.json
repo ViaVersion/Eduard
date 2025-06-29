@@ -14,10 +14,9 @@
   "staff-role": 1272813490356097166,
   "maintainer-role": 1266793198726938756,
   "exploit-report-message": "**Got an exploit?** If you've found a dupe, game breaking glitch, server crash, or any other serious exploit, please report the issue to us in private so we can fix the issue before it's public. Click the button below to open a new private report.",
-  "exploit-report-button": "Report an Exploit",
-  "exploit-staff-mention": "%s A new exploit report has been created.",
+  "exploit-maintainer-mention": "%s A new exploit report has been created.",
   "exploit-duplicate": "You already have an open report thread: %s",
-  "exploit-welcome": "Hello %s, thank you for reporting an issue!\nPlease describe the exploit in as much detail as possible. A staff member will respond shortly.",
+  "exploit-welcome": "Hello %s, thank you for reporting an issue!\nPlease describe the exploit in as much detail as possible. A maintainer will respond shortly.",
   "message-url": "https://raw.githubusercontent.com/ViaVersion/Eduard/master/messages.json",
   "latest-releases": {
     "ViaVersion": "4.9.3",

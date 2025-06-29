@@ -61,15 +61,14 @@ public final class ViaEduardBot {
     private final Guild guild;
     private long serverId;
     private long botChannelId;
+    private long staffExploitChannelId;
     private long botSpamChannelId;
     private long pluginSupportChannelId;
     private long modSupportChannelId;
     private long proxySupportChannelId;
     private long linksChannelId;
     private long staffRoleId;
-    private long maintainerRoleId;
     private String exploitReportMessage;
-    private String exploitMaintainerMention;
     private String exploitDuplicate;
     private String exploitWelcome;
     private Set<Long> nonSupportChannelIds;
@@ -166,12 +165,11 @@ public final class ViaEduardBot {
         nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
             .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         staffRoleId = object.getAsJsonPrimitive("staff-role").getAsLong();
-        maintainerRoleId = object.getAsJsonPrimitive("maintainer-role").getAsLong();
         exploitReportMessage = object.getAsJsonPrimitive("exploit-report-message").getAsString();
-        exploitMaintainerMention = object.getAsJsonPrimitive("exploit-maintainer-mention").getAsString();
         exploitDuplicate = object.getAsJsonPrimitive("exploit-duplicate").getAsString();
         exploitWelcome = object.getAsJsonPrimitive("exploit-welcome").getAsString();
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
+        staffExploitChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
         botSpamChannelId = object.getAsJsonPrimitive("bot-spam").getAsLong();
         messageUrl = object.getAsJsonPrimitive("message-url").getAsString();
         return object;
@@ -263,16 +261,8 @@ public final class ViaEduardBot {
         return staffRoleId;
     }
 
-    public long getMaintainerRoleId() {
-        return maintainerRoleId;
-    }
-
     public String getExploitReportMessage() {
         return exploitReportMessage;
-    }
-
-    public String getExploitMaintainerMention() {
-        return exploitMaintainerMention;
     }
 
     public String getExploitDuplicate() {
@@ -285,6 +275,10 @@ public final class ViaEduardBot {
 
     public long getBotChannelId() {
         return botChannelId;
+    }
+
+    public long getStaffExploitChannelId() {
+        return staffExploitChannelId;
     }
 
     public long getBotSpamChannelId() {

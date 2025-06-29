@@ -169,7 +169,7 @@ public final class ViaEduardBot {
         exploitDuplicate = object.getAsJsonPrimitive("exploit-duplicate").getAsString();
         exploitWelcome = object.getAsJsonPrimitive("exploit-welcome").getAsString();
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
-        staffExploitChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
+        staffExploitChannelId = object.getAsJsonPrimitive("exploit-report-staff-channel").getAsLong();
         botSpamChannelId = object.getAsJsonPrimitive("bot-spam").getAsLong();
         messageUrl = object.getAsJsonPrimitive("message-url").getAsString();
         return object;

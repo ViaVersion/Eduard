@@ -43,6 +43,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -121,20 +122,20 @@ public final class ViaEduardBot {
         registerCommand(guild.upsertCommand("scandumps", "Analyze sent dumps")
             .addOption(OptionType.INTEGER, "days", "Days to go back", true)
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
-            .setGuildOnly(true), new ScanDumpsCommand(this));
+            .setContexts(InteractionContextType.GUILD), new ScanDumpsCommand(this));
         registerCommand(guild.upsertCommand("exploitreport", "Sends message to open private threads")
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
-            .setGuildOnly(true), new ExploitReportCommand(this));
+            .setContexts(InteractionContextType.GUILD), new ExploitReportCommand(this));
         registerCommand(guild.upsertCommand("memory", "Display used and remaining memory of this bot instance")
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MemoryCommand());
         registerCommand(guild.upsertCommand("setversion", "Set the release version for a platform")
             .addOption(OptionType.STRING, "platform", "Via software name", true)
             .addOption(OptionType.STRING, "version", "Release version to set", true)
             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
-            .setGuildOnly(true), new SetVersionCommand(this));
+            .setContexts(InteractionContextType.GUILD), new SetVersionCommand(this));
         registerCommand(guild.upsertCommand("reloadmessages", "Reload the support messages")
             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
-            .setGuildOnly(true), new ReloadMessagesCommand(this));
+            .setContexts(InteractionContextType.GUILD), new ReloadMessagesCommand(this));
     }
 
     private void registerCommand(final CommandCreateAction action, final CommandHandler command) {

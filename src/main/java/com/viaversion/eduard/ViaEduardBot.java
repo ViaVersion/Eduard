@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.viaversion.eduard.command.ExploitReportCommand;
 import com.viaversion.eduard.command.MemoryCommand;
 import com.viaversion.eduard.command.MessageCommand;
 import com.viaversion.eduard.command.ReloadMessagesCommand;
@@ -14,6 +15,7 @@ import com.viaversion.eduard.command.base.CommandHandler;
 import com.viaversion.eduard.listener.BotSpamListener;
 import com.viaversion.eduard.listener.DumpMessageListener;
 import com.viaversion.eduard.listener.ErrorHelper;
+import com.viaversion.eduard.listener.ExploitReportListener;
 import com.viaversion.eduard.listener.FileMessageListener;
 import com.viaversion.eduard.listener.HelpMessageListener;
 import com.viaversion.eduard.listener.LogListener;
@@ -47,7 +49,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.apache.commons.io.IOUtils;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class ViaEduardBot {
 
@@ -66,6 +67,12 @@ public final class ViaEduardBot {
     private long proxySupportChannelId;
     private long linksChannelId;
     private long staffRoleId;
+    private long maintainerRoleId;
+    private String exploitReportMessage;
+    private String exploitReportButton;
+    private String exploitStaffMention;
+    private String exploitDuplicate;
+    private String exploitWelcome;
     private Set<Long> nonSupportChannelIds;
     private String messageUrl;
     private String[] trackedBranches;
@@ -98,7 +105,8 @@ public final class ViaEduardBot {
             .addEventListeners(new SupportMessageListener(this))
             .addEventListeners(new ErrorHelper(this, object.getAsJsonObject("error-helper")))
             .addEventListeners(new LogListener(this))
-            .addEventListeners(new BotSpamListener(this));
+            .addEventListeners(new BotSpamListener(this))
+            .addEventListeners(new ExploitReportListener(this));
 
         try {
             jda = builder.build().awaitReady();
@@ -126,10 +134,9 @@ public final class ViaEduardBot {
         registerCommand(guild.upsertCommand("reloadmessages", "Reload the support messages")
             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
             .setGuildOnly(true), new ReloadMessagesCommand(this));
-        //registerCommand(guild.upsertCommand("sethelpmessage", "Set the contents of a help message")
-        //        .addOption(OptionType.NUMBER, "message", "Message ID to get the contents of", true)
-        //        .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
-        //        .setGuildOnly(true), new SetHelpMessageCommand(this));
+        registerCommand(guild.upsertCommand("exploitreport", "Sends message to open private threads")
+            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
+            .setGuildOnly(true), new ExploitReportCommand(this));
     }
 
     private void registerCommand(final CommandCreateAction action, final CommandHandler command) {
@@ -160,6 +167,12 @@ public final class ViaEduardBot {
         nonSupportChannelIds = object.getAsJsonArray("not-support-channels").asList()
             .stream().map(JsonElement::getAsLong).collect(java.util.stream.Collectors.toSet());
         staffRoleId = object.getAsJsonPrimitive("staff-role").getAsLong();
+        maintainerRoleId = object.getAsJsonPrimitive("maintainer-role").getAsLong();
+        exploitReportMessage = object.getAsJsonPrimitive("exploit-report-message").getAsString();
+        exploitReportButton = object.getAsJsonPrimitive("exploit-report-button").getAsString();
+        exploitStaffMention = object.getAsJsonPrimitive("exploit-staff-mention").getAsString();
+        exploitDuplicate = object.getAsJsonPrimitive("exploit-duplicate").getAsString();
+        exploitWelcome = object.getAsJsonPrimitive("exploit-welcome").getAsString();
         botChannelId = object.getAsJsonPrimitive("bot-channel").getAsLong();
         botSpamChannelId = object.getAsJsonPrimitive("bot-spam").getAsLong();
         messageUrl = object.getAsJsonPrimitive("message-url").getAsString();
@@ -220,7 +233,7 @@ public final class ViaEduardBot {
         ).queue();
     }
 
-    public @Nullable CommandHandler getCommand(final String command) {
+    public CommandHandler getCommand(final String command) {
         return commands.get(command);
     }
 
@@ -250,6 +263,30 @@ public final class ViaEduardBot {
 
     public long getStaffRoleId() {
         return staffRoleId;
+    }
+
+    public long getMaintainerRoleId() {
+        return maintainerRoleId;
+    }
+
+    public String getExploitReportMessage() {
+        return exploitReportMessage;
+    }
+
+    public String getExploitReportButton() {
+        return exploitReportButton;
+    }
+
+    public String getExploitStaffMention() {
+        return exploitStaffMention;
+    }
+
+    public String getExploitDuplicate() {
+        return exploitDuplicate;
+    }
+
+    public String getExploitWelcome() {
+        return exploitWelcome;
     }
 
     public long getBotChannelId() {

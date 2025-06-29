@@ -9,10 +9,8 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 
 public final class EmbedMessageUtil {
 
-    private static final EmbedBuilder EMBED_BUILDER = new EmbedBuilder();
-
     public static MessageEmbed getMessage(final String message, final Color color) {
-        return EMBED_BUILDER.setDescription(message).setColor(color).build();
+        return new EmbedBuilder().setDescription(message).setColor(color).build();
     }
 
     public static MessageEmbed getMessage(final String message) {

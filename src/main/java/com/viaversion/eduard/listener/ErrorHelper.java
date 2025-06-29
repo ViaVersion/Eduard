@@ -25,6 +25,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.viaversion.eduard.ViaEduardBot;
+import com.viaversion.eduard.util.AthenaHelper;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -43,9 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
-import com.viaversion.eduard.util.AthenaHelper;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
@@ -90,7 +89,7 @@ public class ErrorHelper extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(@Nonnull final MessageReceivedEvent event) {
+    public void onMessageReceived(final MessageReceivedEvent event) {
         if (event.isWebhookMessage()) {
             return;
         }

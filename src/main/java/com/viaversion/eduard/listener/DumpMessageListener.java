@@ -51,7 +51,7 @@ public final class DumpMessageListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull final MessageReceivedEvent event) {
-        if (!event.isFromGuild() || !event.isFromType(ChannelType.TEXT) || event.isWebhookMessage() || event.getAuthor().isBot()) {
+        if (!event.isFromGuild() || (!event.isFromType(ChannelType.TEXT) && !event.isFromType(ChannelType.GUILD_PRIVATE_THREAD) )|| event.isWebhookMessage() || event.getAuthor().isBot()) {
             return;
         }
 

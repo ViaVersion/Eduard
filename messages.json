@@ -18,7 +18,7 @@
     },
     {
       "command": "packets",
-      "message": "If you were kicked for \"You are sending too many packets!\", change `max-pps` in the ViaVersion `config.yml` to either a higher number or -1 to disable it. Use `/viaversion pps` in-game to view how many packets players are sending."
+      "message": "If you were kicked for \"You are sending too many packets!\", increase `packet-limiter.max-per-second` and/or `sustained-max-per-second` in the ViaVersion `config.yml`, or set it to `-1` to disable it. Use `/viaversion pps` in-game to view how many packets players are sending."
     },
     {
       "command": "tab",
@@ -248,7 +248,7 @@
     },
     {
       "command": "minehut",
-      "message": "Minehut controls the ViaVersion.jar on their servers. This may to lead to issues (players can't join with the latest MC version, not compatible with the latest ViaBackwards, ...) as that version may be outdated.\n Please contact the minehut support so they can update it for you."
+      "message": "Minehut controls the ViaVersion.jar on their servers. This may to lead to issues (players can't join with the latest MC version, not compatible with the latest ViaBackwards, ...) as that version may be outdated.\n Please contact Minehut support so they update it for you."
     }
   ]
 }

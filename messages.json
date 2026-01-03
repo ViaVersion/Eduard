@@ -245,6 +245,10 @@
         "bedrock"
       ],
       "message": "You only need ViaVersion on Geyser servers if you're not on the latest Minecraft: Java Edition version. Connection issues with Bedrock players should be troubleshooted using <https://wiki.geysermc.org/> and <https://discord.gg/geysermc>."
+    },
+    {
+      "command": "minehut",
+      "message": "Minehut controls the ViaVersion.jar on their servers. This may to lead to issues (players can't join with the latest MC version, not compatible with the latest ViaBackwards, ...) as that version may be outdated.\n Please contact the minehut support so they can update it for you."
     }
   ]
 }

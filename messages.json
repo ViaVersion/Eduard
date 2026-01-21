@@ -113,7 +113,7 @@
         "platforms",
         "platform"
       ],
-      "message": "Here are the officially supported platforms:\nPaper and Spigot as a **plugin**,\nSponge as a **Sponge plugin**,\nVelocity as a **plugin**, *(Run the latest version of the proxy!)*\nBungee as a **plugin**, *(Run the latest version of the proxy!)*\nFabric 1.8/1.14+ as a mod. Requires **ViaFabric(Plus)** and **Fabric API** for your game version,\nStandalone as **proxy** with ViaaaS & ViaProxy.\n\nFor a overview checkout - https://viaversion.com/suite\n\n\n*Side note: As a network owner, running Via on the backend servers is recommended even if you have a ViaVersion compatible proxy.*"
+      "message": "Here are the officially supported platforms:\nPaper and Spigot as a **plugin**,\nSponge as a **Sponge plugin**,\nVelocity as a **plugin**, *(Run the latest version of the proxy!)*\nFabric 1.8/1.14+ as a mod. Either **ViaFabricPlus** (recommended) or **ViaFabric** and **Fabric API** for your game version,\nStandalone as **proxy** with ViaProxy (or ViaaaS).\n\nFor an overview checkout - https://viaversion.com\n\n\n*Side note: As a network owner, running Via on the backend servers is recommended, even if you have a ViaVersion compatible proxy.*"
     },
     {
       "command": "tps",

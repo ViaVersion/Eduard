@@ -76,9 +76,9 @@
         "suppress"
       ],
       "messages": {
-        "plugin": "To fix console spam, use `suppress-conversion-warnings: true` and `suppress-metadata-errors: true` in the ViaVersion `config.yml`. The errors will still happen but you won't be spammed with them and the issues will be ignored.",
-        "mod": "To fix log spam, use `suppress-conversion-warnings: true` and `suppress-metadata-errors: true` in the viaversion.yml (located in `config/viafabricplus/ViaLoader`). The errors will still happen but you won't be spammed with them and the issues will be ignored.",
-        "proxy": "To fix log spam, use `suppress-conversion-warnings: true` and `suppress-metadata-errors: true` in the viaversion.yml (located in `ViaLoader`). The errors will still happen but you won't be spammed with them and the issues will be ignored."
+        "plugin": "To fix console spam, use `log-other-conversion-warnings: false` and `log-entity-data-errors: false` in the ViaVersion `config.yml`. The errors will still happen but you won't be spammed with them and the issues will be ignored.",
+        "mod": "To fix log spam, use `log-other-conversion-warnings: false` and `log-entity-data-errors: false` in the viaversion.yml (located in `config/viafabricplus`). The errors will still happen but you won't be spammed with them and the issues will be ignored.",
+        "proxy": "To fix log spam, use `log-other-conversion-warnings: false` and `log-entity-data-errors: false` in the viaversion.yml (located in the ViaProxy run folder). The errors will still happen but you won't be spammed with them and the issues will be ignored."
       }
     },
     {

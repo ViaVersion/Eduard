@@ -5,11 +5,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.viaversion.eduard.command.EventCommand;
 import com.viaversion.eduard.command.ExploitReportCommand;
 import com.viaversion.eduard.command.MemoryCommand;
 import com.viaversion.eduard.command.MessageCommand;
 import com.viaversion.eduard.command.ReloadMessagesCommand;
-import com.viaversion.eduard.command.ScanDumpsCommand;
 import com.viaversion.eduard.command.SetVersionCommand;
 import com.viaversion.eduard.command.base.CommandHandler;
 import com.viaversion.eduard.listener.BotSpamListener;
@@ -119,10 +119,6 @@ public final class ViaEduardBot {
             .addOption(OptionType.CHANNEL, "channel", "Channel to send the message in", true)
             .addOption(OptionType.STRING, "message", "Message to send", true)
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED), new MessageCommand());
-        registerCommand(guild.upsertCommand("scandumps", "Analyze sent dumps")
-            .addOption(OptionType.INTEGER, "days", "Days to go back", true)
-            .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
-            .setContexts(InteractionContextType.GUILD), new ScanDumpsCommand(this));
         registerCommand(guild.upsertCommand("exploitreport", "Sends message to open private threads")
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED)
             .setContexts(InteractionContextType.GUILD), new ExploitReportCommand(this));
@@ -136,6 +132,8 @@ public final class ViaEduardBot {
         registerCommand(guild.upsertCommand("reloadmessages", "Reload the support messages")
             .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MESSAGE_MANAGE))
             .setContexts(InteractionContextType.GUILD), new ReloadMessagesCommand(this));
+        registerCommand(guild.upsertCommand("event", "Link the latest scheduled event of this server")
+            .setContexts(InteractionContextType.GUILD), new EventCommand(this));
     }
 
     private void registerCommand(final CommandCreateAction action, final CommandHandler command) {
